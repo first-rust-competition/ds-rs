@@ -2,16 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="83d21061-106c-4271-92dc-24682042ff74" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/inbound/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inbound/udp/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inbound/udp/types.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/outbound/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/outbound/tcp/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/outbound/tcp/tags.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/outbound/udp/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/outbound/udp/types/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/outbound/udp/types/tags.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/util.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/inbound/udp/types/tag.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inbound/udp/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/inbound/udp/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inbound/udp/types.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/inbound/udp/types/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/out/" />
@@ -34,33 +31,33 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="rs" value="16" />
+          <entry key="rs" value="17" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Rust" value="16" />
+          <entry key="Rust" value="17" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="rs" value="8389" />
+          <entry key="rs" value="9977" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Rust" value="8389" />
+          <entry key="Rust" value="9977" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="384">
-              <caret line="36" column="28" selection-start-line="36" selection-start-column="28" selection-end-line="36" selection-end-column="28" />
+            <state relative-caret-position="-110">
+              <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
             </state>
           </provider>
         </entry>
@@ -81,17 +78,26 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/inbound/udp/mod.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="64">
-              <caret line="4" selection-start-line="4" selection-end-line="4" />
+            <state relative-caret-position="210">
+              <caret line="27" column="49" selection-start-line="27" selection-start-column="49" selection-end-line="27" selection-end-column="49" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/inbound/udp/types.rs">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/inbound/udp/types/mod.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="224">
-              <caret line="14" selection-start-line="14" selection-end-line="14" />
+            <state>
+              <caret column="12" selection-start-column="12" selection-end-column="12" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/inbound/udp/types/tag.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="19" selection-start-column="19" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -145,15 +151,6 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/outbound/udp/types/tags.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1088">
-              <caret line="72" column="9" selection-start-line="72" selection-start-column="9" selection-end-line="72" selection-end-column="9" />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="Git.Settings">
@@ -187,10 +184,11 @@
         <option value="$PROJECT_DIR$/src/outbound/tcp/tags.rs" />
         <option value="$PROJECT_DIR$/src/inbound.rs" />
         <option value="$PROJECT_DIR$/src/inbound/udp.rs" />
-        <option value="$PROJECT_DIR$/src/inbound/udp/types.rs" />
-        <option value="$PROJECT_DIR$/src/inbound/udp/mod.rs" />
         <option value="$PROJECT_DIR$/src/outbound/udp/types/mod.rs" />
         <option value="$PROJECT_DIR$/src/outbound/udp/mod.rs" />
+        <option value="$PROJECT_DIR$/src/inbound/udp/types.rs" />
+        <option value="$PROJECT_DIR$/src/inbound/udp/types/tag.rs" />
+        <option value="$PROJECT_DIR$/src/inbound/udp/mod.rs" />
         <option value="$PROJECT_DIR$/src/main.rs" />
       </list>
     </option>
@@ -327,7 +325,7 @@
       <updated>1543441987680</updated>
       <workItem from="1543441991534" duration="967000" />
       <workItem from="1543444348376" duration="7405000" />
-      <workItem from="1543453013089" duration="1995000" />
+      <workItem from="1543453013089" duration="3307000" />
     </task>
     <servers />
   </component>
@@ -364,7 +362,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10367000" />
+    <option name="totallyTimeSpent" value="11679000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -377,9 +375,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="13" y="48" width="1340" height="707" extended-state="0" />
-    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49744898" visible="true" weight="0.25736433" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49744898" visible="true" weight="0.25736433" />
       <window_info id="Structure" order="1" sideWeight="0.502551" side_tool="true" weight="0.25348836" />
       <window_info id="Designer" order="2" />
       <window_info id="UI Designer" order="3" />
@@ -393,7 +390,7 @@
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32876712" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.32876712" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.32876712" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -493,24 +490,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.rs">
+    <entry file="file://$PROJECT_DIR$/src/inbound/udp/types/mod.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="36" column="28" selection-start-line="36" selection-start-column="28" selection-end-line="36" selection-end-column="28" />
+        <state>
+          <caret column="12" selection-start-column="12" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/inbound/udp/types/tag.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="19" selection-start-column="19" selection-end-column="19" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/inbound/udp/mod.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="64">
-          <caret line="4" selection-start-line="4" selection-end-line="4" />
+        <state relative-caret-position="210">
+          <caret line="27" column="49" selection-start-line="27" selection-start-column="49" selection-end-line="27" selection-end-column="49" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/inbound/udp/types.rs">
+    <entry file="file://$PROJECT_DIR$/src/main.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
-          <caret line="14" selection-start-line="14" selection-end-line="14" />
+        <state relative-caret-position="-110">
+          <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
         </state>
       </provider>
     </entry>

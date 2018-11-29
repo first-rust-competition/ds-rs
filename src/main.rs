@@ -5,6 +5,7 @@ extern crate futures;
 #[macro_use]
 extern crate bitflags;
 extern crate byteorder;
+extern crate failure;
 
 mod outbound;
 mod inbound;
@@ -15,6 +16,10 @@ use std::thread;
 
 use self::outbound::udp::UdpControlPacket;
 use self::outbound::udp::types::*;
+
+use self::inbound::udp::UdpResponsePacket;
+
+pub type Result<T> = std::result::Result<T, failure::Error>;
 
 fn main() {
     let mut sock_recv = UdpSocket::bind("10.40.69.1:1150").unwrap();
@@ -33,10 +38,12 @@ fn main() {
 
     println!("Looping");
     loop {
+        let seqnum = control.seqnum;
         sock_send.send(&control.encode()[..]).unwrap();
         let mut buf = [0; 20];
         sock_recv.recv_from(&mut buf[..]).unwrap();
-        println!("{:#?}", &buf[..]);
+        let res = UdpResponsePacket::decode(&buf[..], seqnum).unwrap();
+        println!("{:#?}", res);
         thread::sleep_ms(20);
     }
 }
