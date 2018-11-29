@@ -13,9 +13,20 @@ pub struct UdpControlPacket {
 }
 
 impl UdpControlPacket {
-    pub fn encode(&mut self) -> Vec<u8> {
+
+    pub fn new() -> UdpControlPacket {
+        UdpControlPacket {
+            seqnum: 1,
+            control: Control::empty(),
+            request: None,
+            alliance: Alliance::new_red(1),
+            tags: Vec::new()
+        }
+    }
+
+    pub fn encode(&self) -> Vec<u8> {
         let mut buf = vec![];
-        buf.write_u16::<BigEndian>(self.seqnum);
+        buf.write_u16::<BigEndian>(self.seqnum).unwrap();
         buf.push(0x01); // comm version
         buf.push(self.control.bits());
         match &self.request {
@@ -30,8 +41,10 @@ impl UdpControlPacket {
             buf.extend(tag.construct());
         }
 
-        self.seqnum += 1;
-
         buf
+    }
+
+    pub fn increment_seqnum(&mut self) {
+        self.seqnum += 1;
     }
 }

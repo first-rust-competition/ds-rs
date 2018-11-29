@@ -10,19 +10,19 @@ use byteorder::{ReadBytesExt, BigEndian};
 
 #[derive(Debug)]
 pub struct UdpResponsePacket {
-    seqnum: u16,
-    status: Status,
-    trace: Trace,
-    battery: f32,
-    first_req: bool,
-    tags: Vec<Box<Tag>>
+    pub seqnum: u16,
+    pub status: Status,
+    pub trace: Trace,
+    pub battery: f32,
+    pub need_date: bool,
+    pub tags: Vec<Box<Tag>>
 }
 
 impl UdpResponsePacket {
     pub fn decode(mut buf: &[u8], expected_seqnum: u16) -> Result<UdpResponsePacket> {
         let seqnum = buf.read_u16::<BigEndian>()?;
         if seqnum != expected_seqnum {
-            bail!("Unexpeced sequence number {}", seqnum);
+            bail!("Unexpeced sequence number {}. Expected {}", seqnum, expected_seqnum);
         }
 
         buf.read_u8()?; // Get rid of comm version
@@ -44,7 +44,7 @@ impl UdpResponsePacket {
             status,
             trace,
             battery,
-            first_req,
+            need_date: first_req,
             tags: Vec::new(),
         })
     }

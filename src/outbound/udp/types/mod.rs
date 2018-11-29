@@ -33,6 +33,7 @@ impl Request for RestartCode {
     }
 }
 
+#[derive(Copy, Clone)]
 pub struct Alliance(pub u8);
 
 impl Alliance {

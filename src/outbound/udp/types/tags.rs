@@ -3,6 +3,14 @@ use byteorder::{WriteBytesExt, BigEndian};
 
 use crate::util::to_u8_vec;
 
+#[derive(Clone)]
+pub enum TagType {
+    Countdown(Countdown),
+    Joysticks(Joysticks),
+    DateTime(DateTime),
+    Timezone(Timezone),
+}
+
 pub trait Tag {
     fn id(&self) -> usize;
 
@@ -18,8 +26,17 @@ pub trait Tag {
     }
 }
 
+#[derive(Clone)]
 pub struct Countdown {
     seconds_remaining: f32,
+}
+
+impl Countdown {
+    pub fn new(seconds: f32) -> Countdown {
+        Countdown {
+            seconds_remaining: seconds
+        }
+    }
 }
 
 impl Tag for Countdown {
@@ -29,16 +46,27 @@ impl Tag for Countdown {
 
     fn data(&self) -> Vec<u8> {
         let mut buf = Vec::with_capacity(2);
-        buf.write_f32::<BigEndian>(self.seconds_remaining);
+        buf.write_f32::<BigEndian>(self.seconds_remaining).unwrap();
 
         buf
     }
 }
 
+#[derive(Clone)]
 pub struct Joysticks {
     axes: Vec<i8>,
     buttons: Vec<bool>,
     povs: Vec<i16>,
+}
+
+impl Joysticks {
+    pub fn new(axes: Vec<i8>, buttons: Vec<bool>, povs: Vec<i16>) -> Joysticks {
+        Joysticks {
+            axes,
+            buttons,
+            povs
+        }
+    }
 }
 
 impl Tag for Joysticks {
@@ -48,9 +76,9 @@ impl Tag for Joysticks {
 
     fn data(&self) -> Vec<u8> {
         let mut buf = vec![];
-        buf.write_u8(self.axes.len() as u8);
+        buf.write_u8(self.axes.len() as u8).unwrap();
         for axis in &self.axes {
-            buf.write_i8(*axis);
+            buf.write_i8(*axis).unwrap();
         }
 
         let buttons = to_u8_vec(&self.buttons);
@@ -60,14 +88,82 @@ impl Tag for Joysticks {
         buf.push(self.povs.len() as u8);
 
         for pov in &self.povs {
-            buf.write_i16::<BigEndian>(*pov);
+            buf.write_i16::<BigEndian>(*pov).unwrap();
         }
 
         buf
     }
 }
 
-//TODO: timezone tags
+#[derive(Clone)]
+pub struct DateTime {
+    micros: u32,
+    second: u8,
+    minute: u8,
+    hour: u8,
+    day: u8,
+    month: u8,
+    year: u8
+}
+
+impl DateTime {
+    pub fn new(micros: u32, second: u8, minute: u8, hour: u8, day: u8, month: u8, year: u8) -> DateTime {
+        DateTime {
+            micros,
+            second,
+            minute,
+            hour,
+            day,
+            month,
+            year
+        }
+    }
+}
+
+impl Tag for DateTime {
+    fn id(&self) -> usize {
+        0x0f
+    }
+
+    fn data(&self) -> Vec<u8> {
+        let mut buf = Vec::new();
+        buf.write_u32::<BigEndian>(self.micros);
+        buf.write_u8(self.second);
+        buf.write_u8(self.minute);
+        buf.write_u8(self.hour);
+        buf.write_u8(self.day);
+        buf.write_u8(self.month);
+        buf.write_u8(self.year);
+
+        buf
+    }
+}
+
+#[derive(Clone)]
+pub struct Timezone {
+    tz: String,
+}
+
+impl Timezone {
+    pub fn new(tz: &str) -> Timezone {
+        Timezone {
+            tz: tz.to_string()
+        }
+    }
+}
+
+impl Tag for Timezone {
+    fn id(&self) -> usize {
+        0x10
+    }
+
+    fn data(&self) -> Vec<u8> {
+        let mut buf = Vec::new();
+        buf.extend_from_slice(self.tz.as_bytes());
+
+        buf
+    }
+}
 
 #[cfg(test)]
 mod test {
