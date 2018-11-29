@@ -1,0 +1,11 @@
+[package]
+name = "ds-rs"
+version = "0.1.0"
+authors = ["Redrield <redrield@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+futures = "0.1.25"
+tokio = "0.1.13"
+bitflags = "1.0.4"
+byteorder = "1.2.7"

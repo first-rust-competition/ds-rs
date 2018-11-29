@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="83d21061-106c-4271-92dc-24682042ff74" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/inbound/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/inbound/udp/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/inbound/udp/types.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/outbound/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/outbound/tcp/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/outbound/tcp/tags.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/outbound/udp/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/outbound/udp/types/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/outbound/udp/types/tags.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/util.rs" afterDir="false" />
+    </list>
+    <ignored path="$PROJECT_DIR$/target/" />
+    <ignored path="$PROJECT_DIR$/out/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FUSProjectUsageTrigger">
+    <session id="1409386791">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.closed" value="1" />
+          <entry key="project.open.time.4" value="1" />
+          <entry key="project.open.time.64" value="1" />
+          <entry key="project.open.time.8" value="1" />
+          <entry key="project.opened" value="3" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="rs" value="16" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="Rust" value="16" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="rs" value="8389" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="Rust" value="8389" />
+        </counts>
+      </usages-collector>
+    </session>
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="384">
+              <caret line="36" column="28" selection-start-line="36" selection-start-column="28" selection-end-line="36" selection-end-column="28" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/libstd/net/udp.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="368">
+              <caret line="125" column="11" selection-start-line="125" selection-start-column="11" selection-end-line="125" selection-end-column="11" />
+              <folding>
+                <element signature="e#27702#27703#0" expanded="true" />
+                <element signature="e#27733#27734#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/inbound/udp/mod.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="64">
+              <caret line="4" selection-start-line="4" selection-end-line="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/inbound/udp/types.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="224">
+              <caret line="14" selection-start-line="14" selection-end-line="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/libstd/thread/mod.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="185">
+              <caret line="739" column="7" selection-start-line="739" selection-start-column="7" selection-end-line="739" selection-end-column="7" />
+              <folding>
+                <element signature="e#27380#27381#0" expanded="true" />
+                <element signature="e#27426#27427#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/inbound/mod.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="12" selection-start-column="12" selection-end-column="12" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/outbound/mod.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="11" selection-start-column="11" selection-end-column="11" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/outbound/udp/mod.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="322">
+              <caret line="29" column="20" selection-start-line="29" selection-start-column="20" selection-end-line="29" selection-end-column="20" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/outbound/udp/types/mod.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="32">
+              <caret line="2" selection-start-line="2" selection-end-line="2" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/outbound/udp/types/tags.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1088">
+              <caret line="72" column="9" selection-start-line="72" selection-start-column="9" selection-end-line="72" selection-end-column="9" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GradleLocalSettings">
+    <option name="projectSyncType">
+      <map>
+        <entry key="$USER_HOME$/Documents/FalconLibrary" value="PREVIEW" />
+        <entry key="$USER_HOME$/Documents/PathWeaver" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../Mecanum" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../Offseason-2018" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../SaturnLib" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../SaturnShell" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../TestBot" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../allwpilib" value="PREVIEW" />
+        <entry key="$PROJECT_DIR$/../magcoder-test" value="PREVIEW" />
+      </map>
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/outbound.rs" />
+        <option value="$PROJECT_DIR$/src/outbound/udp.rs" />
+        <option value="$PROJECT_DIR$/src/outbound/udp/types.rs" />
+        <option value="$PROJECT_DIR$/src/util.rs" />
+        <option value="$PROJECT_DIR$/src/outbound/udp/types/tags.rs" />
+        <option value="$PROJECT_DIR$/src/outbound/mod.rs" />
+        <option value="$PROJECT_DIR$/src/outbound/tcp.rs" />
+        <option value="$PROJECT_DIR$/src/outbound/tcp/tags.rs" />
+        <option value="$PROJECT_DIR$/src/inbound.rs" />
+        <option value="$PROJECT_DIR$/src/inbound/udp.rs" />
+        <option value="$PROJECT_DIR$/src/inbound/udp/types.rs" />
+        <option value="$PROJECT_DIR$/src/inbound/udp/mod.rs" />
+        <option value="$PROJECT_DIR$/src/outbound/udp/types/mod.rs" />
+        <option value="$PROJECT_DIR$/src/outbound/udp/mod.rs" />
+        <option value="$PROJECT_DIR$/src/main.rs" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="13" />
+    <option name="y" value="48" />
+    <option name="width" value="1340" />
+    <option name="height" value="707" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="ds-rs" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ds-rs" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ds-rs" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ds-rs" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ds-rs" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ds-rs" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="inbound" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ds-rs" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ds-rs" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="inbound" type="462c0819:PsiDirectoryNode" />
+              <item name="udp" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ds-rs" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ds-rs" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="outbound" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ds-rs" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ds-rs" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="outbound" type="462c0819:PsiDirectoryNode" />
+              <item name="tcp" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ds-rs" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ds-rs" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="outbound" type="462c0819:PsiDirectoryNode" />
+              <item name="udp" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="PackagesPane" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Cargo Command.Test outbound::udp::types::tags::test::verify_joysticks">
+    <configuration name="Test outbound::udp::types::tags::test::verify_format" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="test --package ds-rs --bin ds-rs outbound::udp::types::tags::test::verify_format -- --exact" />
+      <option name="allFeatures" value="true" />
+      <option name="nocapture" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="Test outbound::udp::types::tags::test::verify_joysticks" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="test --package ds-rs --bin ds-rs outbound::udp::types::tags::test::verify_joysticks -- --exact" />
+      <option name="allFeatures" value="true" />
+      <option name="nocapture" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Cargo Command.Test outbound::udp::types::tags::test::verify_format" />
+      <item itemvalue="Cargo Command.Test outbound::udp::types::tags::test::verify_joysticks" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Cargo Command.Test outbound::udp::types::tags::test::verify_joysticks" />
+        <item itemvalue="Cargo Command.Test outbound::udp::types::tags::test::verify_format" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="83d21061-106c-4271-92dc-24682042ff74" name="Default Changelist" comment="" />
+      <created>1543441987680</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1543441987680</updated>
+      <workItem from="1543441991534" duration="967000" />
+      <workItem from="1543444348376" duration="7405000" />
+      <workItem from="1543453013089" duration="1995000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TestHistory">
+    <history-entry file="Test_outbound__udp__types__tags__test__verify_joysticks - 2018.11.28 at 18h 03m 04s.xml">
+      <configuration name="Test outbound::udp::types::tags::test::verify_joysticks" configurationId="CargoCommandRunConfiguration" />
+    </history-entry>
+    <history-entry file="Test_outbound__udp__types__tags__test__verify_joysticks - 2018.11.28 at 18h 03m 09s.xml">
+      <configuration name="Test outbound::udp::types::tags::test::verify_joysticks" configurationId="CargoCommandRunConfiguration" />
+    </history-entry>
+    <history-entry file="Test_outbound__udp__types__tags__test__verify_joysticks - 2018.11.28 at 18h 03m 16s.xml">
+      <configuration name="Test outbound::udp::types::tags::test::verify_joysticks" configurationId="CargoCommandRunConfiguration" />
+    </history-entry>
+    <history-entry file="Test_outbound__udp__types__tags__test__verify_joysticks - 2018.11.28 at 18h 03m 28s.xml">
+      <configuration name="Test outbound::udp::types::tags::test::verify_joysticks" configurationId="CargoCommandRunConfiguration" />
+    </history-entry>
+    <history-entry file="Test_outbound__udp__types__tags__test__verify_joysticks - 2018.11.28 at 18h 03m 45s.xml">
+      <configuration name="Test outbound::udp::types::tags::test::verify_joysticks" configurationId="CargoCommandRunConfiguration" />
+    </history-entry>
+    <history-entry file="Test_outbound__udp__types__tags__test__verify_joysticks - 2018.11.28 at 18h 04m 53s.xml">
+      <configuration name="Test outbound::udp::types::tags::test::verify_joysticks" configurationId="CargoCommandRunConfiguration" />
+    </history-entry>
+    <history-entry file="Test_outbound__udp__types__tags__test__verify_joysticks - 2018.11.28 at 18h 05m 50s.xml">
+      <configuration name="Test outbound::udp::types::tags::test::verify_joysticks" configurationId="CargoCommandRunConfiguration" />
+    </history-entry>
+    <history-entry file="Test_outbound__udp__types__tags__test__verify_joysticks - 2018.11.28 at 18h 05m 56s.xml">
+      <configuration name="Test outbound::udp::types::tags::test::verify_joysticks" configurationId="CargoCommandRunConfiguration" />
+    </history-entry>
+    <history-entry file="Test_outbound__udp__types__tags__test__verify_joysticks - 2018.11.28 at 18h 06m 47s.xml">
+      <configuration name="Test outbound::udp::types::tags::test::verify_joysticks" configurationId="CargoCommandRunConfiguration" />
+    </history-entry>
+    <history-entry file="Test_outbound__udp__types__tags__test__verify_joysticks - 2018.11.28 at 18h 15m 10s.xml">
+      <configuration name="Test outbound::udp::types::tags::test::verify_joysticks" configurationId="CargoCommandRunConfiguration" />
+    </history-entry>
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="10367000" />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="13" y="48" width="1340" height="707" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49744898" visible="true" weight="0.25736433" />
+      <window_info id="Structure" order="1" sideWeight="0.502551" side_tool="true" weight="0.25348836" />
+      <window_info id="Designer" order="2" />
+      <window_info id="UI Designer" order="3" />
+      <window_info id="Favorites" order="4" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32876712" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32876712" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.32876712" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="3" />
+      <window_info anchor="right" id="Cargo" order="4" />
+      <window_info anchor="right" id="Database" order="5" />
+      <window_info anchor="right" id="Palette&#9;" order="6" />
+      <window_info anchor="right" id="Maven Projects" order="7" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/liballoc/vec.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="553">
+          <caret line="851" column="11" selection-start-line="851" selection-start-column="11" selection-end-line="851" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/util.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="32">
+          <caret line="2" column="3" selection-start-line="2" selection-start-column="3" selection-end-line="2" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/outbound/tcp/mod.rs">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/outbound/tcp/tags.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="96">
+          <caret line="6" selection-start-line="6" selection-end-line="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/outbound/udp/types/tags.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1088">
+          <caret line="72" column="9" selection-start-line="72" selection-start-column="9" selection-end-line="72" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/inbound/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="12" selection-start-column="12" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/outbound/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="11" selection-start-column="11" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/outbound/udp/types/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="32">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/libstd/thread/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="185">
+          <caret line="739" column="7" selection-start-line="739" selection-start-column="7" selection-end-line="739" selection-end-column="7" />
+          <folding>
+            <element signature="e#27380#27381#0" expanded="true" />
+            <element signature="e#27426#27427#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/outbound/udp/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="322">
+          <caret line="29" column="20" selection-start-line="29" selection-start-column="20" selection-end-line="29" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/libstd/net/udp.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="368">
+          <caret line="125" column="11" selection-start-line="125" selection-start-column="11" selection-end-line="125" selection-end-column="11" />
+          <folding>
+            <element signature="e#27702#27703#0" expanded="true" />
+            <element signature="e#27733#27734#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="384">
+          <caret line="36" column="28" selection-start-line="36" selection-start-column="28" selection-end-line="36" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/inbound/udp/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="64">
+          <caret line="4" selection-start-line="4" selection-end-line="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/inbound/udp/types.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="14" selection-start-line="14" selection-end-line="14" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ProjectJDKs.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>
