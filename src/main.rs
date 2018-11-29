@@ -25,10 +25,10 @@ pub type Result<T> = std::result::Result<T, failure::Error>;
 
 fn main() {
     let mut ds = DriverStation::new(Alliance::new_red(1));
-//    ds.enable();
-//
-//    thread::sleep(Duration::from_secs(5));
-//    ds.disable();
+    ds.enable();
+
+    thread::sleep(Duration::from_secs(5));
+    ds.disable();
     loop {
         thread::sleep(Duration::from_secs(5));
     }

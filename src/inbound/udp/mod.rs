@@ -15,7 +15,7 @@ pub struct UdpResponsePacket {
     pub trace: Trace,
     pub battery: f32,
     pub need_date: bool,
-    pub tags: Vec<Box<Tag>>
+    pub tags: Vec<TagType>,
 }
 
 impl UdpResponsePacket {
