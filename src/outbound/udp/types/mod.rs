@@ -1,5 +1,7 @@
 pub mod tags;
 
+use bitflags::bitflags;
+
 bitflags! {
     pub struct Control: u8 {
         const ESTOP = 0b10000000;

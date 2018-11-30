@@ -127,13 +127,13 @@ impl Tag for DateTime {
 
     fn data(&self) -> Vec<u8> {
         let mut buf = Vec::new();
-        buf.write_u32::<BigEndian>(self.micros);
-        buf.write_u8(self.second);
-        buf.write_u8(self.minute);
-        buf.write_u8(self.hour);
-        buf.write_u8(self.day);
-        buf.write_u8(self.month);
-        buf.write_u8(self.year);
+        buf.write_u32::<BigEndian>(self.micros).unwrap();
+        buf.push(self.second);
+        buf.push(self.minute);
+        buf.push(self.hour);
+        buf.push(self.day);
+        buf.push(self.month);
+        buf.push(self.year);
 
         buf
     }

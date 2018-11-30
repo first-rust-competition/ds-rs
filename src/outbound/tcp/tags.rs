@@ -20,6 +20,7 @@ pub struct JoystickDescriptor {
     is_xbox: bool,
     joystick_type: JoystickType,
     name: String,
+    
     //TODO: finish later im tired :screm:
 }
 

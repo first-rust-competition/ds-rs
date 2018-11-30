@@ -3,6 +3,8 @@ use crate::outbound::udp::UdpControlPacket;
 use crate::outbound::udp::types::*;
 use crate::outbound::udp::types::tags::*;
 
+use std::collections::HashMap;
+
 
 pub struct State {
     mode: Mode,
@@ -10,6 +12,18 @@ pub struct State {
     enabled: bool,
     alliance: Alliance,
     queued_tags: Vec<TagType>,
+    joystick_values: Vec<JoystickValue>,
+}
+
+pub enum JoystickValue {
+    Axis {
+        id: u8,
+        value: f32
+    },
+    Button {
+        id: u8,
+        pressed: bool,
+    }
 }
 
 impl State {
@@ -19,7 +33,8 @@ impl State {
             udp_seqnum: 1,
             enabled: false,
             alliance,
-            queued_tags: Vec::new()
+            queued_tags: Vec::new(),
+            joystick_values: Vec::new(),
         }
     }
 
@@ -27,7 +42,33 @@ impl State {
         self.queued_tags.push(tag);
     }
 
+    pub fn joystick_update(&mut self, value: JoystickValue) {
+        self.joystick_values.push(value);
+    }
+
     pub fn control(&mut self) -> UdpControlPacket {
+
+        let mut axes = Vec::new();
+        let mut buttons = Vec::new();
+
+        for value in &self.joystick_values {
+            match value {
+                JoystickValue::Button { ref id, ref pressed } => buttons.insert(*id as usize, *pressed),
+                JoystickValue::Axis { id, value } =>  {
+                    let value = if *value == 1.0 {
+                        127i8
+                    }else {
+                        (*value * 128f32) as i8
+                    };
+
+                    axes.insert(*id as usize, value);
+                }
+            }
+        }
+
+        self.joystick_values.clear();
+        self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, vec![-1i16])));
+
         let mut control = self.mode.to_control();
 
         if self.enabled {

@@ -1,4 +1,5 @@
-use std::sync::mpsc;
+use crossbeam_channel::{self, Sender, unbounded};
+
 use std::thread;
 use std::io;
 
@@ -17,15 +18,40 @@ use crate::outbound::udp::UdpControlPacket;
 use crate::outbound::udp::types::Alliance;
 use crate::outbound::udp::types::tags::{*, DateTime as DTTag};
 
+use gilrs::*;
+
 pub struct DriverStation {
-    thread_comm: mpsc::Sender<Signal>,
+    thread_comm: Sender<Signal>,
     state: Arc<Mutex<State>>,
 }
 
 impl DriverStation {
     pub fn new(alliance: Alliance) -> DriverStation {
-        let (tx, rx) = mpsc::channel::<Signal>();
+        let (tx, rx) = unbounded::<Signal>();
         let state = Arc::new(Mutex::new(State::new(alliance)));
+
+        let joystick_state = state.clone();
+        let js_rx = rx.clone();
+        thread::spawn(move || {
+            let mut gilrs = Gilrs::new().unwrap();
+            let rx = js_rx;
+
+            loop {
+                match rx.try_recv() {
+                    Ok(Signal::Disconnect) | Err(crossbeam_channel::TryRecvError::Disconnected) => break,
+                    _ => {},
+                }
+                if let Some(ev) = gilrs.next_event() {
+                    let mut state = joystick_state.lock().unwrap();
+                    match ev.event {
+                        EventType::AxisChanged(_, value, id) => state.joystick_update(JoystickValue::Axis { id: id.into_u32() as u8, value }),
+                        EventType::ButtonChanged(_, value, id) => state.joystick_update(JoystickValue::Button { id: id.into_u32() as u8, pressed: value == 1.0 }),
+                        _ => {},
+                    }
+                }
+                thread::sleep(Duration::from_millis(20));
+            }
+        });
 
         let thread_state = state.clone();
         thread::spawn(move || {
@@ -42,11 +68,11 @@ impl DriverStation {
 
             loop {
                 match rx.try_recv() {
-                    Ok(Signal::Disconnect) | Err(mpsc::TryRecvError::Disconnected) => break,
+                    Ok(Signal::Disconnect) | Err(crossbeam_channel::TryRecvError::Disconnected) => break,
                     _ => {}
                 }
 
-                let mut buf = [0u8; 20];
+                let mut buf = [0u8; 100];
 
                 match udp_rx.recv_from(&mut buf[..]) {
                     Ok(_) => {
@@ -54,12 +80,12 @@ impl DriverStation {
                         if let Ok(packet) = UdpResponsePacket::decode(&buf[..], state.seqnum()) {
                             println!("Received packet {:?}", packet);
                             if packet.need_date {
-                                let local = Local::now();
-                                let micros = local.naive_local().timestamp_subsec_micros();
+                                let local = Utc::now();
+                                let micros = local.naive_utc().timestamp_subsec_micros();
                                 let second = local.time().second() as u8;
                                 let minute = local.time().minute() as u8;
                                 let hour = local.time().hour() as u8;
-                                let day = local.date().day() as u8 ;
+                                let day = local.date().day() as u8;
                                 let month = local.date().month0() as u8;
                                 let year = (local.date().year() - 1900) as u8;
                                 let tag = DTTag::new(micros, second, minute, hour, day, month, year);

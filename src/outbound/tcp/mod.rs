@@ -5,6 +5,15 @@ pub struct TcpControlPacket {
 
 }
 
+#[repr(u8)]
+pub enum AxisType {
+    XAxis = 0,
+    YAxis = 1,
+    ZAxis = 2,
+    TwistAxis = 3,
+    ThrottleAxis = 4,
+}
+
 #[repr(i8)]
 pub enum JoystickType {
     Unknown = -1,
