@@ -43,17 +43,32 @@ impl State {
     }
 
     pub fn joystick_update(&mut self, value: JoystickValue) {
+        match value {
+            JoystickValue::Axis { id, .. } => {
+                if let Some(pos) = self.joystick_values.iter().position(|value| match value {
+                    JoystickValue::Axis { id: inner_id, .. } => id == *inner_id,
+                    _ => false,
+                }) {
+                    self.joystick_values.remove(pos);
+                }
+            }
+            _ => {}
+        }
         self.joystick_values.push(value);
     }
 
     pub fn control(&mut self) -> UdpControlPacket {
 
-        let mut axes = Vec::new();
-        let mut buttons = Vec::new();
+        let mut axes = vec![0; 6];
+        let mut buttons = Vec::with_capacity(10);
 
+//        self.joystick_values.dedup_by_key(|elem| match elem {
+//            JoystickValue::Button { id, .. } => *id,
+//            JoystickValue::Axis { id, .. } => *id,
+//        });
         for value in &self.joystick_values {
             match value {
-                JoystickValue::Button { ref id, ref pressed } => buttons.insert(*id as usize, *pressed),
+                JoystickValue::Button { id, pressed } => buttons.insert(*id as usize, *pressed),
                 JoystickValue::Axis { id, value } =>  {
                     let value = if *value == 1.0 {
                         127i8
@@ -66,8 +81,12 @@ impl State {
             }
         }
 
-        self.joystick_values.clear();
-        self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, vec![-1i16])));
+//        self.joystick_values.clear();
+        if !axes.is_empty() { //&& !buttons.is_empty() {
+            println!("Queueing joysticks");
+            println!("Axes contains {:?}", axes);
+            self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, vec![-1i16])));
+        }
 
         let mut control = self.mode.to_control();
 

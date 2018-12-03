@@ -4,6 +4,7 @@ use byteorder::{WriteBytesExt, BigEndian};
 use self::types::*;
 use self::types::tags::*;
 
+/// UDP control packet to send to the roboRIO
 pub struct UdpControlPacket {
     pub seqnum: u16,
     pub control: Control,
@@ -14,6 +15,7 @@ pub struct UdpControlPacket {
 
 impl UdpControlPacket {
 
+    /// Creates an empty control packet
     pub fn new() -> UdpControlPacket {
         UdpControlPacket {
             seqnum: 1,
@@ -24,6 +26,7 @@ impl UdpControlPacket {
         }
     }
 
+    /// Encodes the current state of the packet into a vec to send to the roboRIO
     pub fn encode(&self) -> Vec<u8> {
         let mut buf = vec![];
         buf.write_u16::<BigEndian>(self.seqnum).unwrap();
@@ -44,6 +47,7 @@ impl UdpControlPacket {
         buf
     }
 
+    /// Update the sequence number
     pub fn increment_seqnum(&mut self) {
         self.seqnum += 1;
     }

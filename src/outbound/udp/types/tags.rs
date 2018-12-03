@@ -1,8 +1,12 @@
-//TODO: tags
+//! This module contains various tags that can be attached to the outbound UDP packet
+//! The `Tag` trait contains the core logic, and is inherited by structs with specific roles
+
 use byteorder::{WriteBytesExt, BigEndian};
+
 
 use crate::util::to_u8_vec;
 
+/// Wraps tags to avoid boxing
 #[derive(Clone)]
 pub enum TagType {
     Countdown(Countdown),
@@ -26,6 +30,7 @@ pub trait Tag {
     }
 }
 
+/// Tag containing the time remaining in the current mode to the roboRIO
 #[derive(Clone)]
 pub struct Countdown {
     seconds_remaining: f32,
@@ -52,6 +57,7 @@ impl Tag for Countdown {
     }
 }
 
+/// Tag containing values from joysticks
 #[derive(Clone)]
 pub struct Joysticks {
     axes: Vec<i8>,
@@ -95,6 +101,7 @@ impl Tag for Joysticks {
     }
 }
 
+/// Tag containing the current date and time in UTC
 #[derive(Clone)]
 pub struct DateTime {
     micros: u32,
@@ -139,6 +146,7 @@ impl Tag for DateTime {
     }
 }
 
+/// Tag containing the current timezone of the RIO
 #[derive(Clone)]
 pub struct Timezone {
     tz: String,

@@ -1,7 +1,7 @@
 pub mod tags;
 
-use bitflags::bitflags;
 
+/// bitflag struct for the Control value of the packet
 bitflags! {
     pub struct Control: u8 {
         const ESTOP = 0b10000000;
@@ -15,6 +15,9 @@ bitflags! {
     }
 }
 
+/// Trait/structs for reboot and code restart requests
+///
+/// Not contained in a bitflags struct because these reqeusts are exclusive (can't/shouldn't be OR'd)
 pub trait Request {
     fn code(&self) -> u8;
 }
@@ -36,6 +39,7 @@ impl Request for RestartCode {
 }
 
 #[derive(Copy, Clone)]
+/// Struct abstracting the byte value for alliance colour and position
 pub struct Alliance(pub u8);
 
 impl Alliance {
