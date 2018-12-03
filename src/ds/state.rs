@@ -2,6 +2,7 @@ use crate::inbound::udp::types::Status;
 use crate::outbound::udp::UdpControlPacket;
 use crate::outbound::udp::types::*;
 use crate::outbound::udp::types::tags::*;
+use crate::outbound::tcp::tags::*;
 
 use std::collections::HashMap;
 
@@ -10,20 +11,22 @@ pub struct State {
     mode: Mode,
     udp_seqnum: u16,
     enabled: bool,
+    estopped: bool,
     alliance: Alliance,
     queued_tags: Vec<TagType>,
     joystick_values: Vec<JoystickValue>,
+    pending_tcp: Vec<TcpTag>,
 }
 
 pub enum JoystickValue {
     Axis {
         id: u8,
-        value: f32
+        value: f32,
     },
     Button {
         id: u8,
         pressed: bool,
-    }
+    },
 }
 
 impl State {
@@ -32,14 +35,24 @@ impl State {
             mode: Mode::Teleoperated,
             udp_seqnum: 1,
             enabled: false,
+            estopped: false,
             alliance,
             queued_tags: Vec::new(),
             joystick_values: Vec::new(),
+            pending_tcp: Vec::new(),
         }
     }
 
     pub fn queue(&mut self, tag: TagType) {
         self.queued_tags.push(tag);
+    }
+
+    pub fn queue_tcp(&mut self, tag: TcpTag) {
+        self.pending_tcp.push(tag);
+    }
+
+    pub fn pending_tcp(&self) -> &Vec<TcpTag> {
+        &self.pending_tcp
     }
 
     pub fn joystick_update(&mut self, value: JoystickValue) {
@@ -58,17 +71,16 @@ impl State {
     }
 
     pub fn control(&mut self) -> UdpControlPacket {
-
         let mut axes = vec![0; 6];
         let mut buttons = vec![false; 10];
 
         for value in &self.joystick_values {
             match value {
                 JoystickValue::Button { id, pressed } => buttons.insert(*id as usize, *pressed),
-                JoystickValue::Axis { id, value } =>  {
+                JoystickValue::Axis { id, value } => {
                     let value = if *value == 1.0 {
                         127i8
-                    }else {
+                    } else {
                         (*value * 128f32) as i8
                     };
 
@@ -77,16 +89,16 @@ impl State {
             }
         }
 
-        if !axes.is_empty() {
-            println!("Queueing joysticks");
-            println!("Axes contains {:?}", axes);
-            self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, vec![-1i16])));
-        }
+        self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, vec![-1i16])));
 
         let mut control = self.mode.to_control();
 
         if self.enabled {
             control |= Control::ENABLED;
+        }
+
+        if self.estopped {
+            control |= Control::ESTOP
         }
 
         let mut tags: Vec<Box<Tag>> = Vec::new();
@@ -107,7 +119,7 @@ impl State {
             control,
             request: None,
             alliance: self.alliance,
-            tags
+            tags,
         }
     }
 
@@ -134,6 +146,11 @@ impl State {
     pub fn disable(&mut self) {
         self.enabled = false;
     }
+
+    pub fn estop(&mut self) {
+        self.disable();
+        self.estopped = true;
+    }
 }
 
 pub enum Mode {
@@ -146,11 +163,11 @@ impl Mode {
     pub fn from_status(status: Status) -> Option<Mode> {
         if status & Status::TELEOP == Status::TELEOP {
             Some(Mode::Teleoperated)
-        }else if status & Status::AUTO == Status::AUTO {
+        } else if status & Status::AUTO == Status::AUTO {
             Some(Mode::Autonomous)
-        }else if status & Status::TEST == Status::TEST {
+        } else if status & Status::TEST == Status::TEST {
             Some(Mode::Test)
-        }else {
+        } else {
             None
         }
     }

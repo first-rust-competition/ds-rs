@@ -46,6 +46,16 @@ pub fn button_to_roborio(button: Button) -> u8 {
     match button {
         Button::LeftTrigger2 => 2,
         Button::RightTrigger2 => 3,
+        Button::South => 1,
+        Button::East => 2,
+        Button::West => 3,
+        Button::North => 4,
+        Button::LeftTrigger => 5,
+        Button::RightTrigger => 6,
+        Button::Select => 7,
+        Button::Start => 8,
+        Button::LeftThumb => 9,
+        Button::RightThumb => 10,
         _ => unimplemented!()
     }
 }

@@ -1,6 +1,13 @@
 use super::JoystickType;
 
-pub trait Tag {
+use byteorder::{WriteBytesExt, BigEndian};
+
+pub enum TcpTag {
+    MatchInfo(MatchInfo),
+    GameData(GameData),
+}
+
+pub trait OutgoingTcpTag {
     fn id(&self) -> u8;
 
     fn data(&self) -> Vec<u8>;
@@ -9,9 +16,12 @@ pub trait Tag {
         let mut buf = Vec::new();
         buf.push(self.id());
         buf.extend(self.data());
-        buf.insert(0, buf.len() as u8);
 
-        buf
+        let mut out = Vec::new();
+        out.write_u16::<BigEndian>(buf.len() as u16);
+        out.extend(buf);
+
+        out
     }
 }
 
@@ -29,7 +39,7 @@ pub struct MatchInfo {
     match_type: MatchType
 }
 
-impl Tag for MatchInfo {
+impl OutgoingTcpTag for MatchInfo {
     fn id(&self) -> u8 {
         0x07
     }
@@ -48,7 +58,7 @@ pub struct GameData {
     gsm: String,
 }
 
-impl Tag for GameData {
+impl OutgoingTcpTag for GameData {
     fn id(&self) -> u8 {
         0x0e
     }

@@ -15,14 +15,20 @@ use self::outbound::udp::types::*;
 use self::inbound::udp::UdpResponsePacket;
 use self::ds::DriverStation;
 
-use std::time::Duration;
+use termion::event::Key;
+use termion::input::TermRead;
+use termion::raw::IntoRawMode;
 
-use gilrs::{Gilrs, Button, Event, EventType, Axis};
+use std::io::{stdin, stdout, Write};
+
+use gilrs::*;
+
 
 pub type Result<T> = std::result::Result<T, failure::Error>;
 
 fn main() {
     let mut ds = DriverStation::new(Alliance::new_red(1), 4069);
     ds.enable();
+
     loop {}
 }
