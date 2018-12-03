@@ -60,12 +60,8 @@ impl State {
     pub fn control(&mut self) -> UdpControlPacket {
 
         let mut axes = vec![0; 6];
-        let mut buttons = Vec::with_capacity(10);
+        let mut buttons = vec![false; 10];
 
-//        self.joystick_values.dedup_by_key(|elem| match elem {
-//            JoystickValue::Button { id, .. } => *id,
-//            JoystickValue::Axis { id, .. } => *id,
-//        });
         for value in &self.joystick_values {
             match value {
                 JoystickValue::Button { id, pressed } => buttons.insert(*id as usize, *pressed),
@@ -81,8 +77,7 @@ impl State {
             }
         }
 
-//        self.joystick_values.clear();
-        if !axes.is_empty() { //&& !buttons.is_empty() {
+        if !axes.is_empty() {
             println!("Queueing joysticks");
             println!("Axes contains {:?}", axes);
             self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, vec![-1i16])));
