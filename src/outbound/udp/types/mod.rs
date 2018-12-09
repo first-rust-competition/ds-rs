@@ -4,9 +4,9 @@ pub mod tags;
 /// bitflag struct for the Control value of the packet
 bitflags! {
     pub struct Control: u8 {
-        const ESTOP = 0b10000000;
-        const FMS_CONNECTED = 0b00001000;
-        const ENABLED = 0b00000100;
+        const ESTOP = 0b1000_0000;
+        const FMS_CONNECTED = 0b0000_1000;
+        const ENABLED = 0b0000_0100;
 
         // Mode flags
         const TELEOP = 0b00;
@@ -26,7 +26,7 @@ pub struct RebootRoborio;
 
 impl Request for RebootRoborio {
     fn code(&self) -> u8 {
-        0b00001000
+        0b0000_1000
     }
 }
 
@@ -34,7 +34,7 @@ pub struct RestartCode;
 
 impl Request for RestartCode {
     fn code(&self) -> u8 {
-        0b00000100
+        0b0000_0100
     }
 }
 
@@ -55,11 +55,15 @@ impl Alliance {
         Alliance(position + 2)
     }
 
-    pub fn is_red(&self) -> bool {
+    pub fn is_red(self) -> bool {
         self.0 < 3
     }
 
-    pub fn position(&self) -> u8 {
+    pub fn is_blue(self) -> bool {
+        !self.is_red()
+    }
+
+    pub fn position(self) -> u8 {
         (self.0 % 3) + 1
     }
 }

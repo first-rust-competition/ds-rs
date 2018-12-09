@@ -1,7 +1,6 @@
 use crossbeam_channel::{self, Sender, unbounded};
 
 use std::thread;
-use std::io;
 
 pub mod state;
 mod conn;
@@ -9,19 +8,10 @@ mod conn;
 use self::state::*;
 use self::conn::*;
 
-use chrono::prelude::*;
-
-use std::net::UdpSocket;
-use std::time::{Instant, Duration};
 use std::sync::{Arc, Mutex};
 
-use crate::inbound::udp::UdpResponsePacket;
-use crate::outbound::udp::UdpControlPacket;
 use crate::outbound::udp::types::Alliance;
 use crate::outbound::udp::types::tags::{*, DateTime as DTTag};
-use crate::util::*;
-
-use gilrs::*;
 
 /// Represents a connection to the roboRIO acting as a driver station
 ///
@@ -40,41 +30,6 @@ impl DriverStation {
 
         // Global state of the driver station
         let state = Arc::new(Mutex::new(State::new(alliance)));
-
-        // Thread containing logic to read from joysticks connected to the computer, and push them to the state to update the roborio
-        let joystick_state = state.clone();
-        let js_rx = rx.clone();
-        thread::spawn(move || {
-            let mut gilrs = Gilrs::new().unwrap();
-            let rx = js_rx;
-
-            loop {
-                // If we receive Disconnect from the channel we should break out of the loop
-                match rx.try_recv() {
-                    Ok(Signal::Disconnect) | Err(crossbeam_channel::TryRecvError::Disconnected) => break,
-                    _ => {},
-                }
-                if let Some(ev) = gilrs.next_event() {
-                    let mut state = joystick_state.lock().unwrap();
-                    match ev.event {
-                        EventType::AxisChanged(axis, value, _) => {
-                            state.joystick_update(JoystickValue::Axis { id: axis_to_roborio(axis), value });
-                        },
-                        EventType::ButtonChanged(button, value, _) => {
-                            let roborio_id = button_to_roborio(button);
-
-                            if button == Button::LeftTrigger2 || button == Button::RightTrigger2 {
-                                state.joystick_update(JoystickValue::Axis { id: roborio_id, value });
-                            }else {
-                                state.joystick_update(JoystickValue::Button { id: roborio_id, pressed: value == 1.0 })
-                            }
-                        },
-                        _ => {}
-                    }
-                }
-                thread::sleep(Duration::from_millis(2));
-            }
-        });
 
         // Thread containing UDP sockets communicating with the roboRIO
         let udp_state = state.clone();

@@ -22,11 +22,11 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
     let target_ip = ip_from_team_number(team_number);
     let mut last = Instant::now();
 //            let udp_tx = UdpSocket::bind("10.40.69.1:5678").unwrap();
-    let udp_tx = UdpSocket::bind("10.40.69.65:5678").unwrap();
+    let udp_tx = UdpSocket::bind("0.0.0.0:5678").unwrap();
     udp_tx.connect(&format!("{}:1110", target_ip)).unwrap();
 
 //            let udp_rx = UdpSocket::bind("10.40.69.1:1150").unwrap();
-    let udp_rx = UdpSocket::bind("10.40.69.65:1150").unwrap();
+    let udp_rx = UdpSocket::bind("0.0.0.0:1150").unwrap();
     udp_rx.set_nonblocking(true).unwrap();
 
     println!("UDP sockets open.");
@@ -98,7 +98,7 @@ pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u
     }
 
     let mut conn = TcpStream::connect(&format!("{}:1740", target_ip)).unwrap();
-    conn.set_read_timeout(Some(Duration::from_secs(2)));
+    conn.set_read_timeout(Some(Duration::from_secs(2))).unwrap();
 
     loop {
         match rx.try_recv() {
@@ -116,24 +116,26 @@ pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u
                         TcpTag::MatchInfo(mi) => conn.write(&mi.construct()[..]).unwrap(),
                     };
                 }
+                state.pending_tcp_mut().clear();
             }
         }
 
 
         let mut prelim = [0; 2];
-        if let Ok(_) = conn.read(&mut prelim) {
+        if conn.read(&mut prelim).is_ok() {
             // prelim will hold the size of the incoming packet at this point
             let mut prelim = &prelim[..];
             let size = prelim.read_u16::<BigEndian>().unwrap();
 
             // At this point buf will hold the entire packet minus length prefix.
             let mut buf = vec![0; size as usize];
-            conn.read(&mut buf[..]).unwrap();
+            conn.read_exact(&mut buf[..]).unwrap();
 
+            #[allow(clippy::single_match)] // May add more tags in the future
             match buf[0] {
                 // stdout
-                0x0c => if let Ok(stdout) = Stdout::decode(&buf[..]) {
-                    println!("{}", stdout.message);
+                0x0c => if let Ok(stdout) = Stdout::decode(&buf[1..]) {
+                    println!("stdout: {}", stdout.message);
                 }
                 _ => {}
             }

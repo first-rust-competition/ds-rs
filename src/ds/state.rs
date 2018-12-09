@@ -4,8 +4,9 @@ use crate::outbound::udp::types::*;
 use crate::outbound::udp::types::tags::*;
 use crate::outbound::tcp::tags::*;
 
-use std::collections::HashMap;
+use std::f32;
 
+type JoystickSupplier = Fn() -> Vec<JoystickValue> + Send + Sync + 'static;
 
 pub struct State {
     mode: Mode,
@@ -14,7 +15,7 @@ pub struct State {
     estopped: bool,
     alliance: Alliance,
     queued_tags: Vec<TagType>,
-    joystick_values: Vec<JoystickValue>,
+    joystick_provider: Option<Box<JoystickSupplier>>,
     pending_tcp: Vec<TcpTag>,
 }
 
@@ -37,8 +38,8 @@ impl State {
             enabled: false,
             estopped: false,
             alliance,
+            joystick_provider: None,
             queued_tags: Vec::new(),
-            joystick_values: Vec::new(),
             pending_tcp: Vec::new(),
         }
     }
@@ -55,36 +56,33 @@ impl State {
         &self.pending_tcp
     }
 
-    pub fn joystick_update(&mut self, value: JoystickValue) {
-        match value {
-            JoystickValue::Axis { id, .. } => {
-                if let Some(pos) = self.joystick_values.iter().position(|value| match value {
-                    JoystickValue::Axis { id: inner_id, .. } => id == *inner_id,
-                    _ => false,
-                }) {
-                    self.joystick_values.remove(pos);
-                }
-            }
-            _ => {}
-        }
-        self.joystick_values.push(value);
+    pub fn pending_tcp_mut(&mut self) -> &mut Vec<TcpTag> {
+        &mut self.pending_tcp
+    }
+
+    pub fn set_joystick_provider<F>(&mut self, supplier: F)
+        where F: Fn() -> Vec<JoystickValue> + Send + Sync + 'static
+    {
+        self.joystick_provider = Some(Box::new(supplier))
     }
 
     pub fn control(&mut self) -> UdpControlPacket {
         let mut axes = vec![0; 6];
         let mut buttons = vec![false; 10];
 
-        for value in &self.joystick_values {
-            match value {
-                JoystickValue::Button { id, pressed } => buttons.insert(*id as usize, *pressed),
-                JoystickValue::Axis { id, value } => {
-                    let value = if *value == 1.0 {
-                        127i8
-                    } else {
-                        (*value * 128f32) as i8
-                    };
+        if let Some(ref supplier) = &self.joystick_provider {
+            for value in supplier() {
+                match value {
+                    JoystickValue::Button { id, pressed } => buttons.insert(id as usize, pressed),
+                    JoystickValue::Axis { id, value } => {
+                        let value = if (value - 1.0).abs() < f32::EPSILON {
+                            127i8
+                        } else {
+                            (value * 128f32) as i8
+                        };
 
-                    axes.insert(*id as usize, value);
+                        axes.insert(id as usize, value);
+                    }
                 }
             }
         }

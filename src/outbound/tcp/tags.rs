@@ -18,7 +18,7 @@ pub trait OutgoingTcpTag {
         buf.extend(self.data());
 
         let mut out = Vec::new();
-        out.write_u16::<BigEndian>(buf.len() as u16);
+        out.write_u16::<BigEndian>(buf.len() as u16).unwrap();
         out.extend(buf);
 
         out

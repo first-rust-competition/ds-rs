@@ -1,6 +1,7 @@
+#![allow(dead_code)]
+
 #[macro_use]
 extern crate bitflags;
-
 
 mod outbound;
 mod inbound;
@@ -8,27 +9,17 @@ mod ds;
 pub mod util;
 
 use std::thread;
+use std::time::Duration;
 
-use self::outbound::udp::UdpControlPacket;
-use self::outbound::udp::types::*;
-
-use self::inbound::udp::UdpResponsePacket;
+use self::outbound::udp::types::Alliance;
 use self::ds::DriverStation;
-
-use termion::event::Key;
-use termion::input::TermRead;
-use termion::raw::IntoRawMode;
-
-use std::io::{stdin, stdout, Write};
-
-use gilrs::*;
-
 
 pub type Result<T> = std::result::Result<T, failure::Error>;
 
 fn main() {
     let mut ds = DriverStation::new(Alliance::new_red(1), 4069);
-    ds.enable();
 
-    loop {}
+    loop {
+        thread::sleep(Duration::from_secs(10))
+    }
 }

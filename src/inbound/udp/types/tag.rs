@@ -4,7 +4,7 @@ use crate::Result;
 use byteorder::{BigEndian, ReadBytesExt};
 
 pub trait Tag: Sized {
-    fn decode(mut buf: &[u8]) -> Result<Self>;
+    fn decode(buf: &[u8]) -> Result<Self>;
 }
 
 #[derive(Debug)]

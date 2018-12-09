@@ -33,7 +33,7 @@ impl UdpResponsePacket {
         let battery = {
             let high = buf.read_u8()?;
             let low = buf.read_u8()?;
-            (high as f32) + (low as f32) / 256f32
+            f32::from(high) + f32::from(low) / 256f32
         };
 
         let first_req = buf.read_u8()? == 1;

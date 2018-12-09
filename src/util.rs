@@ -1,9 +1,7 @@
-use std::net::{IpAddr, Ipv4Addr};
-
 use gilrs::{Axis, Button};
 
 /// Function to translate boolean button values into the bytes that the roboRIO expects
-pub fn to_u8_vec(vec_in: &Vec<bool>) -> Vec<u8> {
+pub fn to_u8_vec(vec_in: &[bool]) -> Vec<u8> {
     let mut vec = Vec::new();
 
     for i in (0..vec_in.len()).step_by(8) {
