@@ -14,6 +14,12 @@ bitflags! {
     }
 }
 
+impl Status {
+    pub fn is_browning_out(&self) -> bool {
+        *self & Status::BROWNOUT == Status::BROWNOUT
+    }
+}
+
 bitflags! {
     pub struct Trace: u8 {
         const ROBOT_CODE = 0b0010_0000;

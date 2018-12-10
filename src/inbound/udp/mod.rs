@@ -36,7 +36,7 @@ impl UdpResponsePacket {
             f32::from(high) + f32::from(low) / 256f32
         };
 
-        let first_req = buf.read_u8()? == 1;
+        let need_date = buf.read_u8()? == 1;
         // ignore tags for now
 
         Ok(UdpResponsePacket {
@@ -44,7 +44,7 @@ impl UdpResponsePacket {
             status,
             trace,
             battery,
-            need_date: first_req,
+            need_date,
             tags: Vec::new(),
         })
     }

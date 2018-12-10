@@ -8,6 +8,8 @@ use std::f32;
 
 type JoystickSupplier = Fn() -> Vec<JoystickValue> + Send + Sync + 'static;
 
+/// The inner state of the driver station
+/// contains information about the current mode, enabled status, and pending items for the next iteration of packets
 pub struct State {
     mode: Mode,
     udp_seqnum: u16,
@@ -17,6 +19,8 @@ pub struct State {
     queued_tags: Vec<TagType>,
     joystick_provider: Option<Box<JoystickSupplier>>,
     pending_tcp: Vec<TcpTag>,
+    battery_voltage: f32,
+    pending_request: Option<Request>,
 }
 
 pub enum JoystickValue {
@@ -41,7 +45,13 @@ impl State {
             joystick_provider: None,
             queued_tags: Vec::new(),
             pending_tcp: Vec::new(),
+            battery_voltage: 0f32,
+            pending_request: None,
         }
+    }
+
+    pub fn request(&mut self, request: Request) {
+        self.pending_request = Some(request);
     }
 
     pub fn queue(&mut self, tag: TagType) {
@@ -115,7 +125,7 @@ impl State {
         UdpControlPacket {
             seqnum: self.udp_seqnum,
             control,
-            request: None,
+            request: self.pending_request.take(),
             alliance: self.alliance,
             tags,
         }
@@ -145,6 +155,7 @@ impl State {
         self.enabled = false;
     }
 
+    /// Instructs the RIO to estop, disabling all outputs and disallowing
     pub fn estop(&mut self) {
         self.disable();
         self.estopped = true;

@@ -18,23 +18,11 @@ bitflags! {
 /// Trait/structs for reboot and code restart requests
 ///
 /// Not contained in a bitflags struct because these reqeusts are exclusive (can't/shouldn't be OR'd)
-pub trait Request {
-    fn code(&self) -> u8;
-}
 
-pub struct RebootRoborio;
-
-impl Request for RebootRoborio {
-    fn code(&self) -> u8 {
-        0b0000_1000
-    }
-}
-
-pub struct RestartCode;
-
-impl Request for RestartCode {
-    fn code(&self) -> u8 {
-        0b0000_0100
+bitflags! {
+    pub struct Request: u8 {
+        const REBOOT_ROBORIO = 0b0000_1000;
+        const RESTART_CODE = 0b0000_0100;
     }
 }
 

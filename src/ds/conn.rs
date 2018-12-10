@@ -16,7 +16,9 @@ use std::thread;
 use chrono::prelude::*;
 use crossbeam_channel::{self, Receiver, Sender};
 use byteorder::{ReadBytesExt, BigEndian};
+use smallvec::SmallVec;
 
+/// Contains the logic for sending and receiving messages over UDP to/from the roboRIO
 pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Signal>, team_number: u32) {
     let mut tcp_connected = false;
     let target_ip = ip_from_team_number(team_number);
@@ -58,6 +60,8 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
                         let tag = DTTag::new(micros, second, minute, hour, day, month, year);
                         state.queue(TagType::DateTime(tag));
 
+                        // hardcode the timezone because :screm:
+                        // FIXME: maybe dont
                         let tz = Timezone::new("Canada/Eastern");
                         state.queue(TagType::Timezone(tz));
                     }
@@ -89,6 +93,7 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
     }
 }
 
+/// Contains logic for communication to/from the roboRIO over TCP
 pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u32) {
     let target_ip = ip_from_team_number(team_number);
 
@@ -99,6 +104,8 @@ pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u
 
     let mut conn = TcpStream::connect(&format!("{}:1740", target_ip)).unwrap();
     conn.set_read_timeout(Some(Duration::from_secs(2))).unwrap();
+
+    println!("TCP socket open.");
 
     loop {
         match rx.try_recv() {
@@ -122,20 +129,25 @@ pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u
 
 
         let mut prelim = [0; 2];
-        if conn.read(&mut prelim).is_ok() {
+        if let Ok(_) = conn.read(&mut prelim) {
             // prelim will hold the size of the incoming packet at this point
             let mut prelim = &prelim[..];
             let size = prelim.read_u16::<BigEndian>().unwrap();
 
             // At this point buf will hold the entire packet minus length prefix.
-            let mut buf = vec![0; size as usize];
+            let mut buf: SmallVec<[u8; 0x8000]> = smallvec![0u8; size as usize];
             conn.read_exact(&mut buf[..]).unwrap();
 
             #[allow(clippy::single_match)] // May add more tags in the future
             match buf[0] {
                 // stdout
-                0x0c => if let Ok(stdout) = Stdout::decode(&buf[1..]) {
-                    println!("stdout: {}", stdout.message);
+                0x0c => match Stdout::decode(&buf[1..]) {
+                    Ok(stdout) => println!("stdout: [{:.4}] {}", stdout.timestamp, stdout.message),
+                    Err(e) => println!("ERROR DECODING STDOUT\n----\n{}", e),
+                }
+                0x0b => match ErrorMessage::decode(&buf[1..]) {
+                    Ok(err) => println!("Error message: [{:.4}] {}", err.timestamp, err.details),
+                    Err(e) => println!("ERROR DECODING ERROR MESSAGE\n----\n{}", e),
                 }
                 _ => {}
             }

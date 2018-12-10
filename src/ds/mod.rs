@@ -11,7 +11,6 @@ use self::conn::*;
 use std::sync::{Arc, Mutex};
 
 use crate::outbound::udp::types::Alliance;
-use crate::outbound::udp::types::tags::{*, DateTime as DTTag};
 
 /// Represents a connection to the roboRIO acting as a driver station
 ///
@@ -50,14 +49,17 @@ impl DriverStation {
         }
     }
 
+    /// Enables outputs on the robot
     pub fn enable(&mut self) {
         self.state.lock().unwrap().enable();
     }
 
+    /// Disables outputs on the robot and disallows enabling it until the code is restarted.
     pub fn estop(&mut self) {
         self.state.lock().unwrap().estop();
     }
 
+    /// Disables outputs on the robot
     pub fn disable(&mut self) {
         self.state.lock().unwrap().disable()
     }

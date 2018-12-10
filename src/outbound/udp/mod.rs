@@ -8,7 +8,7 @@ use self::types::tags::*;
 pub struct UdpControlPacket {
     pub seqnum: u16,
     pub control: Control,
-    pub request: Option<Box<Request>>,
+    pub request: Option<Request>,
     pub alliance: Alliance,
     pub tags: Vec<Box<Tag>>,
 }
@@ -33,7 +33,7 @@ impl UdpControlPacket {
         buf.push(0x01); // comm version
         buf.push(self.control.bits());
         match &self.request {
-            Some(ref req) => buf.push(req.code()),
+            Some(ref req) => buf.push(req.bits()),
             None => buf.push(0)
         }
 
