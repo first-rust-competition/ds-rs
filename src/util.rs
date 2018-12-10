@@ -17,6 +17,8 @@ pub fn to_u8_vec(vec_in: &[bool]) -> Vec<u8> {
     vec
 }
 
+/// Converts the given team number into a String containing the IP of the roboRIO
+/// Assumes the roboRIO will exist at 10.TE.AM.2
 pub fn ip_from_team_number(team: u32) -> String {
     let s = team.to_string();
 

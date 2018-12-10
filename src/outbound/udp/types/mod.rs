@@ -15,10 +15,7 @@ bitflags! {
     }
 }
 
-/// Trait/structs for reboot and code restart requests
-///
-/// Not contained in a bitflags struct because these reqeusts are exclusive (can't/shouldn't be OR'd)
-
+/// bitflags for reboot and code restart requests
 bitflags! {
     pub struct Request: u8 {
         const REBOOT_ROBORIO = 0b0000_1000;
@@ -31,26 +28,33 @@ bitflags! {
 pub struct Alliance(pub u8);
 
 impl Alliance {
+    /// Creates a new `Alliance` for the given position, on the red alliance
     pub fn new_red(position: u8) -> Alliance {
 //        assert!((1u8..3).contains(&position));
 
         Alliance(position - 1)
     }
 
+    /// Creates a new `Alliance` for the given position, on the blue alliance
     pub fn new_blue(position: u8) -> Alliance {
 //        assert!((1u8..3).contains(&position));
 
         Alliance(position + 2)
     }
 
+    /// Returns true if `self` is on the red alliance, false otherwise
+    ///
+    /// !is_red() implies is_blue()
     pub fn is_red(self) -> bool {
         self.0 < 3
     }
 
+    /// Returns true if `self` is on the blue alliance, false otherwise
     pub fn is_blue(self) -> bool {
         !self.is_red()
     }
 
+    /// Returns the alliance station position for `self`
     pub fn position(self) -> u8 {
         (self.0 % 3) + 1
     }

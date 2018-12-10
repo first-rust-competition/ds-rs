@@ -49,6 +49,13 @@ impl DriverStation {
         }
     }
 
+    /// Provides a closure that will be called when constructing outbound packets to append joystick values
+    pub fn set_joystick_supplier<F>(&mut self, supplier: F)
+        where F: Fn() -> Vec<JoystickValue> + Send + Sync + 'static
+    {
+        self.state.lock().unwrap().set_joystick_supplier(supplier);
+    }
+
     /// Enables outputs on the robot
     pub fn enable(&mut self) {
         self.state.lock().unwrap().enable();

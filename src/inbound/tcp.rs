@@ -4,6 +4,7 @@ use std::str;
 
 pub enum TcpPacket {
     Stdout(Stdout),
+    ErrorMessage(ErrorMessage),
 }
 
 pub trait IncomingTcpPacket: Sized {

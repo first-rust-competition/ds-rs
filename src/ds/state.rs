@@ -70,7 +70,7 @@ impl State {
         &mut self.pending_tcp
     }
 
-    pub fn set_joystick_provider<F>(&mut self, supplier: F)
+    pub fn set_joystick_supplier<F>(&mut self, supplier: F)
         where F: Fn() -> Vec<JoystickValue> + Send + Sync + 'static
     {
         self.joystick_provider = Some(Box::new(supplier))

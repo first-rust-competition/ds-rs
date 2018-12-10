@@ -6,7 +6,7 @@ use byteorder::{WriteBytesExt, BigEndian};
 
 use crate::util::to_u8_vec;
 
-/// Wraps tags to avoid boxing
+// Tag wrapper enum
 #[derive(Clone)]
 pub enum TagType {
     Countdown(Countdown),
@@ -15,6 +15,7 @@ pub enum TagType {
     Timezone(Timezone),
 }
 
+/// Represents an outgoing UDP tag
 pub trait Tag {
     fn id(&self) -> usize;
 
@@ -30,7 +31,7 @@ pub trait Tag {
     }
 }
 
-/// Tag containing the time remaining in the current mode to the roboRIO
+/// Tag containing the time remaining in the current mode
 #[derive(Clone)]
 pub struct Countdown {
     seconds_remaining: f32,
