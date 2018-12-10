@@ -1,4 +1,5 @@
 use crate::inbound::udp::types::Status;
+use crate::inbound::tcp::TcpPacket;
 use crate::outbound::udp::UdpControlPacket;
 use crate::outbound::udp::types::*;
 use crate::outbound::udp::types::tags::*;
@@ -7,6 +8,7 @@ use crate::outbound::tcp::tags::*;
 use std::f32;
 
 type JoystickSupplier = Fn() -> Vec<JoystickValue> + Send + Sync + 'static;
+type TcpConsumer = Fn(TcpPacket) + Send + Sync + 'static;
 
 /// The inner state of the driver station
 /// contains information about the current mode, enabled status, and pending items for the next iteration of packets
@@ -18,6 +20,7 @@ pub struct State {
     alliance: Alliance,
     queued_tags: Vec<TagType>,
     joystick_provider: Option<Box<JoystickSupplier>>,
+    pub tcp_consumer: Option<Box<TcpConsumer>>,
     pending_tcp: Vec<TcpTag>,
     battery_voltage: f32,
     pending_request: Option<Request>,
@@ -43,6 +46,7 @@ impl State {
             estopped: false,
             alliance,
             joystick_provider: None,
+            tcp_consumer: None,
             queued_tags: Vec::new(),
             pending_tcp: Vec::new(),
             battery_voltage: 0f32,
@@ -70,10 +74,16 @@ impl State {
         &mut self.pending_tcp
     }
 
-    pub fn set_joystick_supplier<F>(&mut self, supplier: F)
-        where F: Fn() -> Vec<JoystickValue> + Send + Sync + 'static
-    {
+    pub fn set_joystick_supplier(&mut self, supplier: impl Fn() -> Vec<JoystickValue> + Send + Sync + 'static) {
         self.joystick_provider = Some(Box::new(supplier))
+    }
+
+    pub fn set_tcp_consumer(&mut self, consumer: impl Fn(TcpPacket) + Send + Sync + 'static) {
+        self.tcp_consumer = Some(Box::new(consumer));
+    }
+
+    pub fn set_alliance(&mut self, alliance: Alliance) {
+        self.alliance = alliance;
     }
 
     pub fn control(&mut self) -> UdpControlPacket {

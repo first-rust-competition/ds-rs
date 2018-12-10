@@ -11,6 +11,7 @@ use self::conn::*;
 use std::sync::{Arc, Mutex};
 
 use crate::outbound::udp::types::Alliance;
+use crate::inbound::tcp::TcpPacket;
 
 /// Represents a connection to the roboRIO acting as a driver station
 ///
@@ -50,10 +51,17 @@ impl DriverStation {
     }
 
     /// Provides a closure that will be called when constructing outbound packets to append joystick values
-    pub fn set_joystick_supplier<F>(&mut self, supplier: F)
-        where F: Fn() -> Vec<JoystickValue> + Send + Sync + 'static
-    {
+    pub fn set_joystick_supplier<F>(&mut self, supplier: impl Fn() -> Vec<JoystickValue> + Send + Sync + 'static) {
         self.state.lock().unwrap().set_joystick_supplier(supplier);
+    }
+
+    pub fn set_tcp_consumer(&mut self, consumer: impl Fn(TcpPacket) + Send + Sync + 'static) {
+        self.state.lock().unwrap().set_tcp_consumer(consumer);
+    }
+
+    /// Changes the alliance for the given `DriverStation`
+    pub fn set_alliance(&mut self, alliance: Alliance) {
+        self.state.lock().unwrap().set_alliance(alliance);
     }
 
     /// Enables outputs on the robot

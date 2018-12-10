@@ -15,8 +15,8 @@ bitflags! {
 }
 
 impl Status {
-    pub fn is_browning_out(&self) -> bool {
-        *self & Status::BROWNOUT == Status::BROWNOUT
+    pub fn is_browning_out(self) -> bool {
+        self & Status::BROWNOUT == Status::BROWNOUT
     }
 }
 

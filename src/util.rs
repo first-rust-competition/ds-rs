@@ -26,6 +26,6 @@ pub fn ip_from_team_number(team: u32) -> String {
         1 | 2 => format!("10.0.{}.2", team),
         3 => format!("10.{}.{}.2", &s[0..1], &s[1..3]),
         4 => format!("10.{}.{}.2", &s[0..2], &s[2..4]),
-        _ => unreachable!()
+        _ => unreachable!() // Team numbers shouldn't be >4 characters
     }
 }

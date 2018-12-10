@@ -129,7 +129,7 @@ pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u
 
 
         let mut prelim = [0; 2];
-        if let Ok(_) = conn.read(&mut prelim) {
+        if conn.read(&mut prelim).is_ok() {
             // prelim will hold the size of the incoming packet at this point
             let mut prelim = &prelim[..];
             let size = prelim.read_u16::<BigEndian>().unwrap();
@@ -138,18 +138,20 @@ pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u
             let mut buf: SmallVec<[u8; 0x8000]> = smallvec![0u8; size as usize];
             conn.read_exact(&mut buf[..]).unwrap();
 
-            #[allow(clippy::single_match)] // May add more tags in the future
-            match buf[0] {
-                // stdout
-                0x0c => match Stdout::decode(&buf[1..]) {
-                    Ok(stdout) => println!("stdout: [{:.4}] {}", stdout.timestamp, stdout.message),
-                    Err(e) => println!("ERROR DECODING STDOUT\n----\n{}", e),
+            let state = state.lock().unwrap();
+            if let Some(ref consumer) = &state.tcp_consumer {
+                match buf[0] {
+                    // stdout
+                    0x0c => match Stdout::decode(&buf[1..]) {
+                        Ok(stdout) => consumer(TcpPacket::Stdout(stdout)),
+                        Err(e) => println!("ERROR DECODING STDOUT\n----\n{}", e),
+                    }
+                    0x0b => match ErrorMessage::decode(&buf[1..]) {
+                        Ok(err) => consumer(TcpPacket::ErrorMessage(err)),
+                        Err(e) => println!("ERROR DECODING ERROR MESSAGE\n----\n{}", e),
+                    }
+                    _ => {}
                 }
-                0x0b => match ErrorMessage::decode(&buf[1..]) {
-                    Ok(err) => println!("Error message: [{:.4}] {}", err.timestamp, err.details),
-                    Err(e) => println!("ERROR DECODING ERROR MESSAGE\n----\n{}", e),
-                }
-                _ => {}
             }
         }
     }
