@@ -23,15 +23,11 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
     let mut tcp_connected = false;
     let target_ip = ip_from_team_number(team_number);
     let mut last = Instant::now();
-//            let udp_tx = UdpSocket::bind("10.40.69.1:5678").unwrap();
     let udp_tx = UdpSocket::bind("0.0.0.0:5678").unwrap();
     udp_tx.connect(&format!("{}:1110", target_ip)).unwrap();
 
-//            let udp_rx = UdpSocket::bind("10.40.69.1:1150").unwrap();
     let udp_rx = UdpSocket::bind("0.0.0.0:1150").unwrap();
     udp_rx.set_nonblocking(true).unwrap();
-
-//    println!("UDP sockets open.");
 
     loop {
         match rx.try_recv() {
@@ -73,7 +69,6 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
                     state.set_battery_voltage(packet.battery);
                     if !tcp_connected {
                         tcp_connected = true;
-                        state.queue_tcp(TcpTag::GameData(GameData { gsm: "LLL".to_string() }));
                         tx.try_send(Signal::ConnectTcp).unwrap();
                     }
                 }

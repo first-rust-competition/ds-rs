@@ -37,7 +37,6 @@ impl UdpResponsePacket {
         };
 
         let need_date = buf.read_u8()? == 1;
-        // ignore tags for now
 
         Ok(UdpResponsePacket {
             seqnum,

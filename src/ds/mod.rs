@@ -1,4 +1,5 @@
 use crossbeam_channel::{self, Sender, unbounded};
+use failure::bail;
 
 use std::thread;
 
@@ -9,10 +10,14 @@ use self::state::*;
 use self::conn::*;
 
 use std::sync::{Arc, Mutex};
+use std::net::UdpSocket;
 
 use crate::outbound::udp::types::{Request, Alliance};
+use crate::outbound::tcp::tags::*;
 use crate::inbound::tcp::TcpPacket;
 use crate::inbound::udp::types::Trace;
+use crate::Result;
+use crate::util::ip_from_team_number;
 
 /// Represents a connection to the roboRIO acting as a driver station
 ///
@@ -67,6 +72,15 @@ impl DriverStation {
 
     pub fn set_mode(&mut self, mode: Mode) {
         self.state.lock().unwrap().set_mode(mode);
+    }
+
+    pub fn set_game_specific_message(&mut self, message: &str) -> Result<()> {
+        if message.len() != 3 {
+            bail!("Message should be 3 characters long");
+        }
+
+        self.state.lock().unwrap().queue_tcp(TcpTag::GameData(GameData { gsm: message.to_string() }));
+        Ok(())
     }
 
     pub fn mode(&self) -> Mode {
