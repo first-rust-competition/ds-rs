@@ -30,3 +30,18 @@ bitflags! {
         const DISABLED = 0b0000_0001;
     }
 }
+
+macro_rules! gen_trace_methods {
+    ($($func_name:ident => $flag_name:expr),+) => {
+        impl Trace {
+            $(
+            pub fn $func_name(self) -> bool {
+                self & $flag_name == $flag_name
+            }
+            )+
+        }
+    }
+}
+
+gen_trace_methods!(is_autonomous => Trace::AUTONOMOUS, is_teleop => Trace::TELEOP, is_disabled => Trace::DISABLED,
+                   is_test => Trace::TEST_MODE, is_code_started => Trace::ROBOT_CODE, is_connected => Trace::IS_ROBORIO);

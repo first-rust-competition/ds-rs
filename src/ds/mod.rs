@@ -10,8 +10,9 @@ use self::conn::*;
 
 use std::sync::{Arc, Mutex};
 
-use crate::outbound::udp::types::Alliance;
+use crate::outbound::udp::types::{Request, Alliance};
 use crate::inbound::tcp::TcpPacket;
+use crate::inbound::udp::types::Trace;
 
 /// Represents a connection to the roboRIO acting as a driver station
 ///
@@ -51,7 +52,7 @@ impl DriverStation {
     }
 
     /// Provides a closure that will be called when constructing outbound packets to append joystick values
-    pub fn set_joystick_supplier<F>(&mut self, supplier: impl Fn() -> Vec<JoystickValue> + Send + Sync + 'static) {
+    pub fn set_joystick_supplier(&mut self, supplier: impl Fn() -> Vec<JoystickValue> + Send + Sync + 'static) {
         self.state.lock().unwrap().set_joystick_supplier(supplier);
     }
 
@@ -64,9 +65,33 @@ impl DriverStation {
         self.state.lock().unwrap().set_alliance(alliance);
     }
 
+    pub fn set_mode(&mut self, mode: Mode) {
+        self.state.lock().unwrap().set_mode(mode);
+    }
+
+    pub fn mode(&self) -> Mode {
+        *self.state.lock().unwrap().mode()
+    }
+
     /// Enables outputs on the robot
     pub fn enable(&mut self) {
         self.state.lock().unwrap().enable();
+    }
+
+    pub fn restart_code(&mut self) {
+        self.state.lock().unwrap().request(Request::RESTART_CODE);
+    }
+
+    pub fn enabled(&self) -> bool {
+        *self.state.lock().unwrap().enabled()
+    }
+
+    pub fn trace(&self) -> Trace {
+        self.state.lock().unwrap().trace().clone()
+    }
+
+    pub fn battery_voltage(&self) -> f32 {
+        *self.state.lock().unwrap().battery_voltage()
     }
 
     /// Disables outputs on the robot and disallows enabling it until the code is restarted.

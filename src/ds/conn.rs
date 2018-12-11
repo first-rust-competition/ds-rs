@@ -31,7 +31,7 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
     let udp_rx = UdpSocket::bind("0.0.0.0:1150").unwrap();
     udp_rx.set_nonblocking(true).unwrap();
 
-    println!("UDP sockets open.");
+//    println!("UDP sockets open.");
 
     loop {
         match rx.try_recv() {
@@ -69,8 +69,11 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
                     let mode = Mode::from_status(packet.status).unwrap();
                     state.set_mode(mode);
                     state.increment_seqnum();
+                    state.set_trace(packet.trace);
+                    state.set_battery_voltage(packet.battery);
                     if !tcp_connected {
                         tcp_connected = true;
+                        state.queue_tcp(TcpTag::GameData(GameData { gsm: "LLL".to_string() }));
                         tx.try_send(Signal::ConnectTcp).unwrap();
                     }
                 }
@@ -105,7 +108,7 @@ pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u
     let mut conn = TcpStream::connect(&format!("{}:1740", target_ip)).unwrap();
     conn.set_read_timeout(Some(Duration::from_secs(2))).unwrap();
 
-    println!("TCP socket open.");
+//    println!("TCP socket open.");
 
     loop {
         match rx.try_recv() {
@@ -136,19 +139,24 @@ pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u
 
             // At this point buf will hold the entire packet minus length prefix.
             let mut buf: SmallVec<[u8; 0x8000]> = smallvec![0u8; size as usize];
+//            let mut buf = vec![0u8; size as usize];
             conn.read_exact(&mut buf[..]).unwrap();
 
             let state = state.lock().unwrap();
             if let Some(ref consumer) = &state.tcp_consumer {
-                match buf[0] {
+                match buf.get(0) {
                     // stdout
-                    0x0c => match Stdout::decode(&buf[1..]) {
+                    Some(0x0c) => match Stdout::decode(&buf[1..]) {
                         Ok(stdout) => consumer(TcpPacket::Stdout(stdout)),
                         Err(e) => println!("ERROR DECODING STDOUT\n----\n{}", e),
                     }
-                    0x0b => match ErrorMessage::decode(&buf[1..]) {
+                    Some(0x0b) => match ErrorMessage::decode(&buf[1..]) {
                         Ok(err) => consumer(TcpPacket::ErrorMessage(err)),
                         Err(e) => println!("ERROR DECODING ERROR MESSAGE\n----\n{}", e),
+                    }
+
+                    None => {
+                        // Something has gone terrible terribly wrong, but i dont want to panic so its a thonk
                     }
                     _ => {}
                 }

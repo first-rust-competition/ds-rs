@@ -55,7 +55,7 @@ impl OutgoingTcpTag for MatchInfo {
 }
 
 pub struct GameData {
-    gsm: String,
+    pub gsm: String,
 }
 
 impl OutgoingTcpTag for GameData {

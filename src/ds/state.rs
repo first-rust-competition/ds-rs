@@ -1,4 +1,4 @@
-use crate::inbound::udp::types::Status;
+use crate::inbound::udp::types::*;
 use crate::inbound::tcp::TcpPacket;
 use crate::outbound::udp::UdpControlPacket;
 use crate::outbound::udp::types::*;
@@ -24,6 +24,7 @@ pub struct State {
     pending_tcp: Vec<TcpTag>,
     battery_voltage: f32,
     pending_request: Option<Request>,
+    trace: Trace
 }
 
 pub enum JoystickValue {
@@ -45,11 +46,12 @@ impl State {
             enabled: false,
             estopped: false,
             alliance,
+            trace: Trace::empty(),
+            battery_voltage: 0.0,
             joystick_provider: None,
             tcp_consumer: None,
             queued_tags: Vec::new(),
             pending_tcp: Vec::new(),
-            battery_voltage: 0f32,
             pending_request: None,
         }
     }
@@ -84,6 +86,22 @@ impl State {
 
     pub fn set_alliance(&mut self, alliance: Alliance) {
         self.alliance = alliance;
+    }
+
+    pub fn battery_voltage(&self) -> &f32 {
+        &self.battery_voltage
+    }
+
+    pub fn set_battery_voltage(&mut self, voltage: f32) {
+        self.battery_voltage = voltage;
+    }
+
+    pub fn trace(&self) -> &Trace {
+        &self.trace
+    }
+
+    pub fn set_trace(&mut self, trace: Trace) {
+        self.trace = trace;
     }
 
     pub fn control(&mut self) -> UdpControlPacket {
@@ -165,6 +183,10 @@ impl State {
         self.enabled = false;
     }
 
+    pub fn enabled(&self) -> &bool {
+        &self.enabled
+    }
+
     /// Instructs the RIO to estop, disabling all outputs and disallowing
     pub fn estop(&mut self) {
         self.disable();
@@ -172,6 +194,7 @@ impl State {
     }
 }
 
+#[derive(Copy, Clone)]
 pub enum Mode {
     Autonomous,
     Teleoperated,
