@@ -17,16 +17,17 @@ pub struct State {
     udp_seqnum: u16,
     enabled: bool,
     estopped: bool,
-    alliance: Alliance,
+    pub alliance: Alliance,
     queued_tags: Vec<TagType>,
     joystick_provider: Option<Box<JoystickSupplier>>,
     pub tcp_consumer: Option<Box<TcpConsumer>>,
     pending_tcp: Vec<TcpTag>,
     battery_voltage: f32,
     pending_request: Option<Request>,
-    trace: Trace
+    trace: Trace,
 }
 
+#[derive(Debug)]
 pub enum JoystickValue {
     Axis {
         id: u8,
@@ -110,22 +111,30 @@ impl State {
 
         if let Some(ref supplier) = &self.joystick_provider {
             for value in supplier() {
+                // If statements bound check to stop it from crashing
                 match value {
-                    JoystickValue::Button { id, pressed } => buttons.insert(id as usize, pressed),
+                    JoystickValue::Button { id, pressed } => {
+                        if id >= 1 && id <= 10 {
+                            buttons.insert(id as usize, pressed)
+                        }
+                    }
                     JoystickValue::Axis { id, value } => {
-                        let value = if (value - 1.0).abs() < f32::EPSILON {
-                            127i8
-                        } else {
-                            (value * 128f32) as i8
-                        };
+                        if id >= 0 && id <= 5 {
+                            let value = if (value - 1.0).abs() < f32::EPSILON {
+                                127i8
+                            } else {
+                                (value * 128f32) as i8
+                            };
 
-                        axes.insert(id as usize, value);
+                            axes.remove(id as usize);
+                            axes.insert(id as usize, value);
+                        }
                     }
                 }
             }
-        }
 
-        self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, vec![-1i16])));
+            self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, vec![-1i16])));
+        }
 
         let mut control = self.mode.to_control();
 
@@ -191,6 +200,14 @@ impl State {
     pub fn estop(&mut self) {
         self.disable();
         self.estopped = true;
+    }
+
+    pub fn set_estop(&mut self, estop: bool) {
+        self.estopped = estop;
+    }
+
+    pub fn estopped(&self) -> &bool {
+        &self.estopped
     }
 }
 

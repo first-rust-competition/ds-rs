@@ -1,4 +1,4 @@
-use crossbeam_channel::{self, Sender, unbounded};
+use crossbeam_channel::{self, Sender, Receiver, unbounded};
 use failure::bail;
 
 use std::thread;
@@ -24,8 +24,10 @@ use crate::util::ip_from_team_number;
 /// This struct will contain relevant functions to update the state of the robot,
 /// and also manages the threads that manage network connections and joysticks
 pub struct DriverStation {
-    thread_comm: Sender<Signal>,
+    thread_tx: Sender<Signal>,
+    thread_rx: Receiver<Signal>,
     state: Arc<Mutex<State>>,
+    team_number: u32,
 }
 
 impl DriverStation {
@@ -42,18 +44,75 @@ impl DriverStation {
         let udp_rx = rx.clone();
         let udp_tx = tx.clone();
         thread::spawn(move || {
-            udp_thread(udp_state, udp_tx, udp_rx, team_number);
+            let monkas_tate = udp_state.clone();
+            if udp_thread(udp_state, udp_tx, udp_rx, team_number).is_err() {
+                let mut state = monkas_tate.lock().unwrap();
+                state.set_trace(Trace::empty());
+                state.set_battery_voltage(0.0);
+            }
         });
 
         let tcp_state = state.clone();
+        let tcp_rx = rx.clone();
         thread::spawn(move || {
-            tcp_thread(tcp_state, rx, team_number);
+            tcp_thread(tcp_state, tcp_rx, team_number);
         });
 
         DriverStation {
-            thread_comm: tx,
+            thread_tx: tx,
+            thread_rx: rx,
             state,
+            team_number,
         }
+    }
+
+    /// Queries subthreads to see if this DriverStation is currently connected to a roboRIO
+    pub fn connected(&self) -> Result<bool> {
+        // Assumption here is that a responding heartbeat implies we're connected.
+        self.thread_tx.send(Signal::Heartbeat)?;
+
+        match self.thread_rx.recv() {
+            Ok(Signal::Heartbeat) => Ok(true),
+            Err(e) => Err(e.into()),
+            _ => unreachable!()
+        }
+    }
+
+    pub fn reconnect(&mut self) -> Result<()> {
+//        self.thread_tx.try_send(Signal::Disconnect).unwrap();
+
+        if self.state.is_poisoned() {
+            // The alliance is rarely altered, so forcing a lock here to grab its value should be fine.
+            // Poisoned contents are left alone and then dropped once we replace it.
+            let alliance = {
+                let state = self.state.lock().err().unwrap().into_inner();
+                state.alliance
+            };
+
+            self.state = Arc::new(Mutex::new(State::new(alliance)));
+        }
+
+        let team_number = self.team_number;
+
+        let udp_state = self.state.clone();
+        let udp_rx = self.thread_rx.clone();
+        let udp_tx = self.thread_tx.clone();
+        thread::spawn(move || {
+            let monkas_tate = udp_state.clone();
+            if udp_thread(udp_state, udp_tx, udp_rx, team_number).is_err() {
+                let mut state = monkas_tate.lock().unwrap();
+                state.set_trace(Trace::empty());
+                state.set_battery_voltage(0.0);
+            }
+        });
+
+        let tcp_state = self.state.clone();
+        let tcp_rx = self.thread_rx.clone();
+        thread::spawn(move || {
+            tcp_thread(tcp_state, tcp_rx, team_number);
+        });
+
+        Ok(())
     }
 
     /// Provides a closure that will be called when constructing outbound packets to append joystick values
@@ -96,6 +155,10 @@ impl DriverStation {
         self.state.lock().unwrap().request(Request::RESTART_CODE);
     }
 
+    pub fn restart_roborio(&mut self) {
+        self.state.lock().unwrap().request(Request::REBOOT_ROBORIO);
+    }
+
     pub fn enabled(&self) -> bool {
         *self.state.lock().unwrap().enabled()
     }
@@ -113,6 +176,10 @@ impl DriverStation {
         self.state.lock().unwrap().estop();
     }
 
+    pub fn estopped(&self) -> bool {
+        *self.state.lock().unwrap().estopped()
+    }
+
     /// Disables outputs on the robot
     pub fn disable(&mut self) {
         self.state.lock().unwrap().disable()
@@ -123,11 +190,12 @@ impl DriverStation {
 impl Drop for DriverStation {
     fn drop(&mut self) {
         // When this struct is dropped the threads that we spawned should be stopped otherwise we're leaking
-        self.thread_comm.send(Signal::Disconnect).unwrap();
+        self.thread_tx.send(Signal::Disconnect).unwrap();
     }
 }
 
 pub enum Signal {
     Disconnect,
     ConnectTcp,
+    Heartbeat,
 }

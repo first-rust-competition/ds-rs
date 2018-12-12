@@ -18,6 +18,10 @@ impl Status {
     pub fn is_browning_out(self) -> bool {
         self & Status::BROWNOUT == Status::BROWNOUT
     }
+
+    pub fn emergency_stopped(self) -> bool {
+        self & Status::ESTOP == Status::ESTOP
+    }
 }
 
 bitflags! {
