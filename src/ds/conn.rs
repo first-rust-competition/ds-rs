@@ -19,6 +19,8 @@ use crossbeam_channel::{self, Receiver, Sender};
 use byteorder::{ReadBytesExt, BigEndian};
 use smallvec::SmallVec;
 
+use failure::bail;
+
 use crate::Result;
 
 /// Contains the logic for sending and receiving messages over UDP to/from the roboRIO
@@ -89,6 +91,11 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
                 }
             }
             Err(e) => {
+                // According to jes, if the LV DS doesn't get a response after 500ms it assumes the roborio is gone
+                if last.elapsed() >= Duration::from_millis(500) {
+                    bail!("Connection timed out.");
+                }
+
                 if e.kind() != io::ErrorKind::WouldBlock {
                     return Err(e.into());
                 }
@@ -102,6 +109,7 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
             udp_tx.send(&state.control().encode()[..])?;
         }
 
+        // After 5 iterations the RIO's control packet will reflect the estop change
         if iterations >= 5 {
             estop_grace = false;
         }

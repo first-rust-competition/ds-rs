@@ -136,6 +136,8 @@ impl State {
                             axes.insert(id as usize, value);
                         }
                     }
+                    JoystickValue::POV { id, angle } => {
+                    }
                 }
             }
 
