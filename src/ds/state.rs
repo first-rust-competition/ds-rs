@@ -37,6 +37,10 @@ pub enum JoystickValue {
         id: u8,
         pressed: bool,
     },
+    POV {
+        id: u8,
+        angle: i16,
+    }
 }
 
 impl State {
@@ -115,6 +119,8 @@ impl State {
                 match value {
                     JoystickValue::Button { id, pressed } => {
                         if id >= 1 && id <= 10 {
+                            let id = id - 1;
+                            buttons.remove(id as usize);
                             buttons.insert(id as usize, pressed)
                         }
                     }

@@ -11,7 +11,7 @@ use crate::inbound::udp::types::Trace;
 use std::net::{UdpSocket, TcpStream};
 use std::sync::{Arc, Mutex};
 use std::time::{Instant, Duration};
-use std::io::{self, Write, Read};
+use std::io::{self, Write, Read, ErrorKind};
 use std::thread;
 
 use chrono::prelude::*;
@@ -90,7 +90,7 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
             }
             Err(e) => {
                 if e.kind() != io::ErrorKind::WouldBlock {
-                    return Err(e.into())
+                    return Err(e.into());
                 }
             }
         }
@@ -117,7 +117,7 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
 }
 
 /// Contains logic for communication to/from the roboRIO over TCP
-pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u32) -> Result<()>{
+pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u32) -> Result<()> {
     let target_ip = ip_from_team_number(team_number);
 
     match rx.recv() {
@@ -152,35 +152,40 @@ pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u
 
 
         let mut prelim = [0; 2];
-        if conn.read(&mut prelim).is_ok() {
-            // prelim will hold the size of the incoming packet at this point
-            let mut prelim = &prelim[..];
-            let size = prelim.read_u16::<BigEndian>().unwrap();
+        match conn.read(&mut prelim) {
+            Ok(_) => {
+                // prelim will hold the size of the incoming packet at this point
+                let mut prelim = &prelim[..];
+                let size = prelim.read_u16::<BigEndian>().unwrap();
 
-            // At this point buf will hold the entire packet minus length prefix.
-            let mut buf: SmallVec<[u8; 0x8000]> = smallvec![0u8; size as usize];
+                // At this point buf will hold the entire packet minus length prefix.
+                let mut buf: SmallVec<[u8; 0x8000]> = smallvec![0u8; size as usize];
 //            let mut buf = vec![0u8; size as usize];
-            conn.read_exact(&mut buf[..])?;
+                conn.read_exact(&mut buf[..])?;
 
-            let state = state.lock().unwrap();
-            if let Some(ref consumer) = &state.tcp_consumer {
-                match buf.get(0) {
-                    // stdout
-                    Some(0x0c) => match Stdout::decode(&buf[1..]) {
-                        Ok(stdout) => consumer(TcpPacket::Stdout(stdout)),
-                        Err(e) => println!("ERROR DECODING STDOUT\n----\n{}", e),
-                    }
-                    //FIXME: Error message decoding is buggy
+                let state = state.lock().unwrap();
+                if let Some(ref consumer) = &state.tcp_consumer {
+                    match buf.get(0) {
+                        // stdout
+                        Some(0x0c) => match Stdout::decode(&buf[1..]) {
+                            Ok(stdout) => consumer(TcpPacket::Stdout(stdout)),
+                            Err(e) => println!("ERROR DECODING STDOUT\n----\n{}", e),
+                        }
+                        //FIXME: Error message decoding is buggy
 //                    Some(0x0b) => match ErrorMessage::decode(&buf[1..]) {
 //                        Ok(err) => consumer(TcpPacket::ErrorMessage(err)),
 //                        Err(e) => println!("ERROR DECODING ERROR MESSAGE\n----\n{}", e),
 //                    }
 
-                    None => {
-                        // Something has gone terrible terribly wrong, but i dont want to panic so its a thonk
+                        None => {
+                            // Something has gone terrible terribly wrong, but i dont want to panic so its a thonk
+                        }
+                        _ => {}
                     }
-                    _ => {}
                 }
+            }
+            Err(e) => if e.kind() != ErrorKind::WouldBlock {
+                return Err(e.into());
             }
         }
     }

@@ -55,7 +55,12 @@ impl DriverStation {
         let tcp_state = state.clone();
         let tcp_rx = rx.clone();
         thread::spawn(move || {
-            tcp_thread(tcp_state, tcp_rx, team_number);
+            let monkas_tate = tcp_state.clone();
+            if tcp_thread(tcp_state, tcp_rx, team_number).is_err() {
+                let mut state = monkas_tate.lock().unwrap();
+                state.set_trace(Trace::empty());
+                state.set_battery_voltage(0.0);
+            }
         });
 
         DriverStation {
@@ -74,7 +79,7 @@ impl DriverStation {
         match self.thread_rx.recv() {
             Ok(Signal::Heartbeat) => Ok(true),
             Err(e) => Err(e.into()),
-            _ => unreachable!()
+            sig => bail!("Unexpected value {:?}", sig)
         }
     }
 
@@ -109,7 +114,12 @@ impl DriverStation {
         let tcp_state = self.state.clone();
         let tcp_rx = self.thread_rx.clone();
         thread::spawn(move || {
-            tcp_thread(tcp_state, tcp_rx, team_number);
+            let monkas_tate = tcp_state.clone();
+            if tcp_thread(tcp_state, tcp_rx, team_number).is_err() {
+                let mut state = monkas_tate.lock().unwrap();
+                state.set_trace(Trace::empty());
+                state.set_battery_voltage(0.0);
+            }
         });
 
         Ok(())
@@ -194,6 +204,7 @@ impl Drop for DriverStation {
     }
 }
 
+#[derive(Debug)]
 pub enum Signal {
     Disconnect,
     ConnectTcp,
