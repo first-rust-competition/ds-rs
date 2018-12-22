@@ -1,4 +1,5 @@
 /// Function to translate boolean button values into the bytes that the roboRIO expects
+/// Buttons are encoded LSB 0 on the wire. This algorithm was MSB 0 originally, and I didn't feel like translating it properly
 pub fn to_u8_vec(vec_in: &[bool]) -> Vec<u8> {
     let mut vec = Vec::new();
 
@@ -17,6 +18,7 @@ pub fn to_u8_vec(vec_in: &[bool]) -> Vec<u8> {
     vec.into_iter().rev().collect()
 }
 
+/// Reverses all the bits in a byte. Used to convert MSB 0 into LSB 0 for button encoding
 fn reverse_byte(mut byte: u8) -> u8 {
     byte = (byte & 0xF0) >> 4 | (byte & 0x0F) << 4;
     byte = (byte & 0xCC) >> 2 | (byte & 0x33) << 2;

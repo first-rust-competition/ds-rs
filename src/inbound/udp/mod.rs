@@ -1,13 +1,13 @@
 pub mod types;
 
 use self::types::*;
-use self::types::tag::*;
 
 use crate::Result;
 use failure::bail;
 
 use byteorder::{ReadBytesExt, BigEndian};
 
+/// Response packet sent by the RIO over UDP every ~20ms.
 #[derive(Debug)]
 pub struct UdpResponsePacket {
     pub seqnum: u16,
@@ -15,10 +15,12 @@ pub struct UdpResponsePacket {
     pub trace: Trace,
     pub battery: f32,
     pub need_date: bool,
-    pub tags: Vec<TagType>,
 }
 
 impl UdpResponsePacket {
+    /// Attempts to decode a valid response packet from the given buffer
+    /// Will return Err() if any of the reads fail, or if the sequence number of the packet
+    /// doesn't match the expected sequence number
     pub fn decode(mut buf: &[u8], expected_seqnum: u16) -> Result<UdpResponsePacket> {
         let seqnum = buf.read_u16::<BigEndian>()?;
         if seqnum != expected_seqnum {
@@ -44,7 +46,6 @@ impl UdpResponsePacket {
             trace,
             battery,
             need_date,
-            tags: Vec::new(),
         })
     }
 }

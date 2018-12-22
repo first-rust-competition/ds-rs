@@ -90,7 +90,7 @@ impl Tag for Joysticks {
 
         let buttons = to_u8_vec(&self.buttons);
 
-        buf.push(self.buttons.len() as u8);
+        buf.push(10);
         buf.extend(buttons);
 
         buf.push(self.povs.len() as u8);

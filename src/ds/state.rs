@@ -7,7 +7,7 @@ use crate::outbound::tcp::tags::*;
 
 use std::f32;
 
-type JoystickSupplier = Fn() -> Vec<JoystickValue> + Send + Sync + 'static;
+type JoystickSupplier = Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static;
 type TcpConsumer = Fn(TcpPacket) + Send + Sync + 'static;
 
 /// The inner state of the driver station
@@ -40,7 +40,7 @@ pub enum JoystickValue {
     POV {
         id: u8,
         angle: i16,
-    }
+    },
 }
 
 impl State {
@@ -81,7 +81,7 @@ impl State {
         &mut self.pending_tcp
     }
 
-    pub fn set_joystick_supplier(&mut self, supplier: impl Fn() -> Vec<JoystickValue> + Send + Sync + 'static) {
+    pub fn set_joystick_supplier(&mut self, supplier: impl Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static) {
         self.joystick_provider = Some(Box::new(supplier))
     }
 
@@ -110,42 +110,46 @@ impl State {
     }
 
     pub fn control(&mut self) -> UdpControlPacket {
-        let mut axes = vec![0; 6];
-        let mut buttons = vec![false; 10];
-
         if let Some(ref supplier) = &self.joystick_provider {
-            for value in supplier() {
-                // If statements bound check to stop it from crashing
-                match value {
-                    JoystickValue::Button { id, pressed } => {
-                        if id >= 1 && id <= 10 {
-                            let id = id - 1;
-                            buttons.remove(id as usize);
-                            buttons.insert(id as usize, pressed)
-                        }
-                    }
-                    JoystickValue::Axis { id, value } => {
-                        if id >= 0 && id <= 5 {
-                            let value = if (value - 1.0).abs() < f32::EPSILON {
-                                127i8
-                            } else {
-                                (value * 128f32) as i8
-                            };
+            let joysticks: Vec<Vec<JoystickValue>> = supplier();
 
-                            axes.remove(id as usize);
-                            axes.insert(id as usize, value);
+            // Joystick tags come one after another, iterate over the outer Vec and queue with each loop
+            for i in 0..joysticks.len() {
+                let mut axes = vec![0; 6];
+                let mut buttons = vec![false; 10];
+
+                for value in joysticks[i] {
+                    // If statements bound check to stop it from crashing
+                    match value {
+                        JoystickValue::Button { id, pressed } => {
+                            if id >= 1 && id <= 10 {
+                                let id = id - 1;
+                                buttons.remove(id as usize);
+                                buttons.insert(id as usize, pressed)
+                            }
                         }
-                    }
-                    JoystickValue::POV { id, angle } => {
+                        JoystickValue::Axis { id, value } => {
+                            if id >= 0 && id <= 5 {
+                                let value = if (value - 1.0).abs() < f32::EPSILON {
+                                    127i8
+                                } else {
+                                    (value * 128f32) as i8
+                                };
+
+                                axes.remove(id as usize);
+                                axes.insert(id as usize, value);
+                            }
+                        }
+                        JoystickValue::POV { id, angle } => {}
                     }
                 }
+                self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, vec![-1i16])));
             }
-
-            self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, vec![-1i16])));
         }
 
         let mut control = self.mode.to_control();
 
+        // Control bits not related to the mode
         if self.enabled {
             control |= Control::ENABLED;
         }
@@ -154,6 +158,7 @@ impl State {
             control |= Control::ESTOP
         }
 
+        // Hack to turn the enums into trait objects
         let mut tags: Vec<Box<Tag>> = Vec::new();
 
         for tag in self.queued_tags.clone() {

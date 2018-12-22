@@ -34,6 +34,9 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
     let udp_rx = UdpSocket::bind("0.0.0.0:1150")?;
     udp_rx.set_nonblocking(true)?;
 
+    // When we initially instruct the robot to estop, the inbound UDP packets
+    // may not reflect the change immediately, and estop state is updated based on what the roboRIO says.
+    // Toggled when estop is first instructed by the DS and remains for 3 loop iterations to allow the roboRIO to get the memo
     let mut estop_grace = false;
     let mut iterations = 0;
 
@@ -109,15 +112,18 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
             udp_tx.send(&state.control().encode()[..])?;
         }
 
-        // After 5 iterations the RIO's control packet will reflect the estop change
+        // After 5 iterations the RIO's control packet should reflect the estop change
         if iterations >= 5 {
             estop_grace = false;
         }
 
-        iterations += 1;
+        if estop_grace {
+            iterations += 1;
+        }
         thread::sleep(Duration::from_millis(20));
     }
 
+    // This loop is exited only when we're told to disconnect. Clear any roboRIO state
     let mut state = state.lock().unwrap();
     state.set_trace(Trace::empty());
 
@@ -134,6 +140,8 @@ pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u
     }
 
     let mut conn = TcpStream::connect(&format!("{}:1740", target_ip))?;
+    // Because I can't split `conn` and set reads to nonblocking, settling for a timeout instead
+    // Can be fairly long because TCP packets aren't very frequent, other than stdout
     conn.set_read_timeout(Some(Duration::from_secs(2)))?;
 
 //    println!("TCP socket open.");
@@ -159,6 +167,9 @@ pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u
         }
 
 
+        // Try to read a u16 which holds the size of an incoming packet.
+        // At this point all we know is the u16, so no need to make the buffer bigger (but not big enough)
+        // and potentially miss data
         let mut prelim = [0; 2];
         match conn.read(&mut prelim) {
             Ok(_) => {
@@ -168,7 +179,6 @@ pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u
 
                 // At this point buf will hold the entire packet minus length prefix.
                 let mut buf: SmallVec<[u8; 0x8000]> = smallvec![0u8; size as usize];
-//            let mut buf = vec![0u8; size as usize];
                 conn.read_exact(&mut buf[..])?;
 
                 let state = state.lock().unwrap();

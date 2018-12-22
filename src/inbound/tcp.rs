@@ -11,6 +11,8 @@ pub trait IncomingTcpPacket: Sized {
     fn decode(buf: &[u8]) -> Result<Self>;
 }
 
+/// Contains data outputted to standard output from robot code. Can be consumed by API users to
+/// display code logs
 pub struct Stdout {
     pub timestamp: f32,
     pub message: String,

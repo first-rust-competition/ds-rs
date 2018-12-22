@@ -10,6 +10,7 @@ use self::state::*;
 use self::conn::*;
 
 use std::sync::{Arc, Mutex};
+use std::time::Duration;
 use std::net::UdpSocket;
 
 use crate::outbound::udp::types::{Request, Alliance};
@@ -76,13 +77,24 @@ impl DriverStation {
         // Assumption here is that a responding heartbeat implies we're connected.
         self.thread_tx.send(Signal::Heartbeat)?;
 
-        match self.thread_rx.recv() {
+
+        match self.thread_rx.recv_timeout(Duration::from_millis(1000)) {
             Ok(Signal::Heartbeat) => Ok(true),
-            Err(e) => Err(e.into()),
+            Ok(Signal::ConnectTcp) => Ok(true), // Edge case that I'm tried of making this panic
+            Err(e) => {
+                if e == crossbeam_channel::RecvTimeoutError::Timeout {
+                    Ok(false)
+                }else {
+                    Err(e.into())
+                }
+            },
             sig => bail!("Unexpected value {:?}", sig)
         }
     }
 
+    /// Attempts to reconnect to the roboRIO, assuming that the DS is disconnected
+    /// This method tries to recover from poisoned mutex errors, which come from panicking in the networking threads.
+    /// A new state will be constructed with the same alliance passed in the constructor
     pub fn reconnect(&mut self) -> Result<()> {
 //        self.thread_tx.try_send(Signal::Disconnect).unwrap();
 
@@ -126,7 +138,7 @@ impl DriverStation {
     }
 
     /// Provides a closure that will be called when constructing outbound packets to append joystick values
-    pub fn set_joystick_supplier(&mut self, supplier: impl Fn() -> Vec<JoystickValue> + Send + Sync + 'static) {
+    pub fn set_joystick_supplier(&mut self, supplier: impl Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static) {
         self.state.lock().unwrap().set_joystick_supplier(supplier);
     }
 
@@ -139,10 +151,12 @@ impl DriverStation {
         self.state.lock().unwrap().set_alliance(alliance);
     }
 
+    /// Changes the given `mode` the robot will be in
     pub fn set_mode(&mut self, mode: Mode) {
         self.state.lock().unwrap().set_mode(mode);
     }
 
+    /// Sets the game specific message sent to the robot, and used during the autonomous period
     pub fn set_game_specific_message(&mut self, message: &str) -> Result<()> {
         if message.len() != 3 {
             bail!("Message should be 3 characters long");
@@ -152,6 +166,7 @@ impl DriverStation {
         Ok(())
     }
 
+    /// Returns the current mode of the robot
     pub fn mode(&self) -> Mode {
         *self.state.lock().unwrap().mode()
     }
@@ -161,22 +176,27 @@ impl DriverStation {
         self.state.lock().unwrap().enable();
     }
 
+    /// Instructs the roboRIO to restart robot code
     pub fn restart_code(&mut self) {
         self.state.lock().unwrap().request(Request::RESTART_CODE);
     }
 
+    /// Instructs the roboRIO to reboot
     pub fn restart_roborio(&mut self) {
         self.state.lock().unwrap().request(Request::REBOOT_ROBORIO);
     }
 
+    /// Returns whether the robot is currently enabled
     pub fn enabled(&self) -> bool {
         *self.state.lock().unwrap().enabled()
     }
 
+    /// Returns the last received Trace from the robot
     pub fn trace(&self) -> Trace {
         self.state.lock().unwrap().trace().clone()
     }
 
+    /// Returns the last received battery voltage from the robot
     pub fn battery_voltage(&self) -> f32 {
         *self.state.lock().unwrap().battery_voltage()
     }
@@ -186,6 +206,7 @@ impl DriverStation {
         self.state.lock().unwrap().estop();
     }
 
+    /// Returns whether the robot is currently E-stopped
     pub fn estopped(&self) -> bool {
         *self.state.lock().unwrap().estopped()
     }
