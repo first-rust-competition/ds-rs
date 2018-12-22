@@ -118,26 +118,26 @@ impl State {
                 let mut axes = vec![0; 6];
                 let mut buttons = vec![false; 10];
 
-                for value in joysticks[i] {
+                for value in &joysticks[i] {
                     // If statements bound check to stop it from crashing
                     match value {
                         JoystickValue::Button { id, pressed } => {
-                            if id >= 1 && id <= 10 {
+                            if *id >= 1 && *id <= 10 {
                                 let id = id - 1;
                                 buttons.remove(id as usize);
-                                buttons.insert(id as usize, pressed)
+                                buttons.insert(id as usize, *pressed)
                             }
                         }
                         JoystickValue::Axis { id, value } => {
-                            if id >= 0 && id <= 5 {
-                                let value = if (value - 1.0).abs() < f32::EPSILON {
+                            if *id >= 0 && *id <= 5 {
+                                let value = if (*value - 1.0).abs() < f32::EPSILON {
                                     127i8
                                 } else {
                                     (value * 128f32) as i8
                                 };
 
-                                axes.remove(id as usize);
-                                axes.insert(id as usize, value);
+                                axes.remove(*id as usize);
+                                axes.insert(*id as usize, value);
                             }
                         }
                         JoystickValue::POV { id, angle } => {}
