@@ -27,7 +27,9 @@ use crate::Result;
 pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Signal>, team_number: u32) -> Result<()> {
     let mut tcp_connected = false;
     let target_ip = ip_from_team_number(team_number);
+
     let mut last = Instant::now();
+
     let udp_tx = UdpSocket::bind("0.0.0.0:5678")?;
     udp_tx.connect(&format!("{}:1110", target_ip))?;
 

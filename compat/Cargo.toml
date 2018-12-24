@@ -1,0 +1,13 @@
+[package]
+name = "compat"
+version = "0.1.0"
+authors = ["Redrield <redrield@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "ds_compat"
+crate-type = ["cdylib"]
+
+[dependencies]
+libc = "0.2.45"
+ds = { path = "../" }

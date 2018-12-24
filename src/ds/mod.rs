@@ -14,6 +14,7 @@ use std::time::Duration;
 use std::net::UdpSocket;
 
 use crate::outbound::udp::types::{Request, Alliance};
+use crate::outbound::udp::types::tags::TagType;
 use crate::outbound::tcp::tags::*;
 use crate::inbound::tcp::TcpPacket;
 use crate::inbound::udp::types::Trace;
@@ -199,6 +200,14 @@ impl DriverStation {
     /// Returns the last received battery voltage from the robot
     pub fn battery_voltage(&self) -> f32 {
         *self.state.lock().unwrap().battery_voltage()
+    }
+
+    pub fn queue_udp(&mut self, udp_tag: TagType) {
+        self.state.lock().unwrap().queue(udp_tag);
+    }
+
+    pub fn udp_queue(&self) -> Vec<TagType> {
+        self.state.lock().unwrap().udp_queue().clone()
     }
 
     /// Disables outputs on the robot and disallows enabling it until the code is restarted.

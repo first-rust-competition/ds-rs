@@ -69,6 +69,10 @@ impl State {
         self.queued_tags.push(tag);
     }
 
+    pub fn udp_queue(&self) -> &Vec<TagType> {
+        &self.queued_tags
+    }
+
     pub fn queue_tcp(&mut self, tag: TcpTag) {
         self.pending_tcp.push(tag);
     }
