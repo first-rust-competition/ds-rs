@@ -121,6 +121,7 @@ impl State {
             for i in 0..joysticks.len() {
                 let mut axes = vec![0; 6];
                 let mut buttons = vec![false; 10];
+                let mut povs = vec![-1i16];
 
                 for value in &joysticks[i] {
                     // If statements bound check to stop it from crashing
@@ -144,10 +145,15 @@ impl State {
                                 axes.insert(*id as usize, value);
                             }
                         }
-                        JoystickValue::POV { id, angle } => {}
+                        JoystickValue::POV { id, angle } => {
+                            if *id == 0 {
+                                povs.remove(*id as usize);
+                                povs.insert(*id as usize, *angle);
+                            }
+                        }
                     }
                 }
-                self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, vec![-1i16])));
+                self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, povs)));
             }
         }
 
