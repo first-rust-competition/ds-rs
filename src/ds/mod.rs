@@ -230,7 +230,7 @@ impl DriverStation {
 impl Drop for DriverStation {
     fn drop(&mut self) {
         // When this struct is dropped the threads that we spawned should be stopped otherwise we're leaking
-        self.thread_tx.send(Signal::Disconnect).unwrap();
+        self.thread_tx.try_send(Signal::Disconnect).unwrap();
     }
 }
 
