@@ -134,7 +134,7 @@ impl State {
                             }
                         }
                         JoystickValue::Axis { id, value } => {
-                            if *id >= 0 && *id <= 5 {
+                            if *id <= 5 {
                                 let value = if (*value - 1.0).abs() < f32::EPSILON {
                                     127i8
                                 } else {
