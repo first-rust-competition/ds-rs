@@ -23,7 +23,6 @@ use crate::Result;
 ///
 /// This struct will contain relevant functions to update the state of the robot,
 /// and also manages the threads that manage network connections and joysticks
-#[derive(Debug)]
 pub struct DriverStation {
     thread_tx: Sender<Signal>,
     thread_rx: Receiver<Signal>,
