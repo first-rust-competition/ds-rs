@@ -8,6 +8,8 @@
 //! provides an API for connecting and controlling to the roboRIO in an FRC robot. It also allows for users to
 //! provide joystick input using arbitrary APIs, and to consume any incoming TCP packets.
 
+#![doc(html_root_url = "https://docs.rs/ds/0.2.1")]
+
 #[macro_use]
 extern crate bitflags;
 #[macro_use]
