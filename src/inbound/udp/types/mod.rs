@@ -14,11 +14,11 @@ bitflags! {
 
 impl Status {
     pub fn is_browning_out(self) -> bool {
-        self & Status::BROWNOUT == Status::BROWNOUT
+        self.contains(Status::BROWNOUT)
     }
 
     pub fn emergency_stopped(self) -> bool {
-        self & Status::ESTOP == Status::ESTOP
+        self.contains(Status::ESTOP)
     }
 }
 
@@ -38,7 +38,7 @@ macro_rules! gen_trace_methods {
         impl Trace {
             $(
             pub fn $func_name(self) -> bool {
-                self & $flag_name == $flag_name
+                self.contains($flag_name)
             }
             )+
         }

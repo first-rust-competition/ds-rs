@@ -2,12 +2,13 @@ use byteorder::{ReadBytesExt, BigEndian};
 use crate::Result;
 use std::str;
 
+/// Enum containing possible incoming TCP packets from the roboRIO
 pub enum TcpPacket {
+    /// Contains a message from the robot code's standard output
     Stdout(Stdout),
-    ErrorMessage(ErrorMessage),
 }
 
-pub trait IncomingTcpPacket: Sized {
+pub(crate) trait IncomingTcpPacket: Sized {
     fn decode(buf: &[u8]) -> Result<Self>;
 }
 

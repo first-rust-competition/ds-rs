@@ -1,6 +1,6 @@
 /// Function to translate boolean button values into the bytes that the roboRIO expects
 /// Buttons are encoded LSB 0 on the wire. This algorithm was MSB 0 originally, and I didn't feel like translating it properly
-pub fn to_u8_vec(vec_in: &[bool]) -> Vec<u8> {
+pub(crate) fn to_u8_vec(vec_in: &[bool]) -> Vec<u8> {
     let mut vec = Vec::new();
 
     for i in (0..vec_in.len()).step_by(8) {
@@ -29,7 +29,7 @@ fn reverse_byte(mut byte: u8) -> u8 {
 
 /// Converts the given team number into a String containing the IP of the roboRIO
 /// Assumes the roboRIO will exist at 10.TE.AM.2
-pub fn ip_from_team_number(team: u32) -> String {
+pub(crate) fn ip_from_team_number(team: u32) -> String {
     let s = team.to_string();
 
     match s.len() {

@@ -3,7 +3,7 @@ use failure::bail;
 
 use std::thread;
 
-pub mod state;
+pub(crate) mod state;
 mod conn;
 
 use self::state::*;
@@ -11,20 +11,19 @@ use self::conn::*;
 
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
-use std::net::UdpSocket;
 
 use crate::outbound::udp::types::{Request, Alliance};
-use crate::outbound::udp::types::tags::TagType;
-use crate::outbound::tcp::tags::*;
+use crate::outbound::udp::types::tags::UdpTag;
+use crate::outbound::tcp::*;
 use crate::inbound::tcp::TcpPacket;
 use crate::inbound::udp::types::Trace;
 use crate::Result;
-use crate::util::ip_from_team_number;
 
 /// Represents a connection to the roboRIO acting as a driver station
 ///
 /// This struct will contain relevant functions to update the state of the robot,
 /// and also manages the threads that manage network connections and joysticks
+#[derive(Debug)]
 pub struct DriverStation {
     thread_tx: Sender<Signal>,
     thread_rx: Receiver<Signal>,
@@ -85,10 +84,10 @@ impl DriverStation {
             Err(e) => {
                 if e == crossbeam_channel::RecvTimeoutError::Timeout {
                     Ok(false)
-                }else {
+                } else {
                     Err(e.into())
                 }
-            },
+            }
             sig => bail!("Unexpected value {:?}", sig)
         }
     }
@@ -202,12 +201,24 @@ impl DriverStation {
         *self.state.lock().unwrap().battery_voltage()
     }
 
-    pub fn queue_udp(&mut self, udp_tag: TagType) {
-        self.state.lock().unwrap().queue(udp_tag);
+    /// Queues a UDP tag to be transmitted with the next outbound packet to the roboRIO
+    pub fn queue_udp(&mut self, udp_tag: UdpTag) {
+        self.state.lock().unwrap().queue_udp(udp_tag);
     }
 
-    pub fn udp_queue(&self) -> Vec<TagType> {
-        self.state.lock().unwrap().udp_queue().clone()
+    /// Returns a Vec of the current contents of the UDP queue
+    pub fn udp_queue(&self) -> Vec<UdpTag> {
+        self.state.lock().unwrap().pending_udp().clone()
+    }
+
+    /// Queues a TCP tag to be transmitted to the roboRIO
+    pub fn queue_tcp(&mut self, tcp_tag: TcpTag) {
+        self.state.lock().unwrap().queue_tcp(tcp_tag);
+    }
+
+    /// Returns a Vec of the current contents of the TCP queue
+    pub fn tcp_queue(&self) -> Vec<TcpTag> {
+        self.state.lock().unwrap().pending_tcp().clone()
     }
 
     /// Disables outputs on the robot and disallows enabling it until the code is restarted.
@@ -226,6 +237,27 @@ impl DriverStation {
     }
 }
 
+/// Enum representing a value from a Joystick to be transmitted to the roboRIO
+#[derive(Debug)]
+pub enum JoystickValue {
+    /// Represents an axis value to be sent to the roboRIO
+    ///
+    /// `value` should range from `-1.0..=1.0`, or `0.0..=1.0` if the axis is a trigger
+    Axis {
+        id: u8,
+        value: f32,
+    },
+    /// Represents a button value to be sent to the roboRIO
+    Button {
+        id: u8,
+        pressed: bool,
+    },
+    /// Represents a POV, or D-pad value to be sent to the roboRIO
+    POV {
+        id: u8,
+        angle: i16,
+    },
+}
 
 impl Drop for DriverStation {
     fn drop(&mut self) {
@@ -235,7 +267,7 @@ impl Drop for DriverStation {
 }
 
 #[derive(Debug)]
-pub enum Signal {
+pub(crate) enum Signal {
     Disconnect,
     ConnectTcp,
     Heartbeat,

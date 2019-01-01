@@ -8,8 +8,6 @@
 //! provides an API for connecting and controlling to the roboRIO in an FRC robot. It also allows for users to
 //! provide joystick input using arbitrary APIs, and to consume any incoming TCP packets.
 
-#![allow(dead_code)]
-
 #[macro_use]
 extern crate bitflags;
 #[macro_use]
@@ -22,8 +20,8 @@ pub(crate) mod util;
 
 pub use self::outbound::udp::types::Alliance;
 pub use self::outbound::udp::types::tags::*;
-pub use self::ds::DriverStation;
-pub use self::ds::state::{Mode, JoystickValue};
+pub use self::ds::{DriverStation, JoystickValue};
+pub use self::ds::state::Mode;
 pub use self::inbound::tcp::*;
 
 pub type Result<T> = std::result::Result<T, failure::Error>;

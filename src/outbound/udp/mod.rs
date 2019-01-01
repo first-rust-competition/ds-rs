@@ -6,26 +6,14 @@ use self::types::tags::*;
 
 /// UDP control packet to send to the roboRIO
 pub struct UdpControlPacket {
-    pub seqnum: u16,
-    pub control: Control,
-    pub request: Option<Request>,
-    pub alliance: Alliance,
-    pub tags: Vec<Box<Tag>>,
+    pub(crate) seqnum: u16,
+    pub(crate) control: Control,
+    pub(crate) request: Option<Request>,
+    pub(crate) alliance: Alliance,
+    pub(crate) tags: Vec<Box<Tag>>,
 }
 
 impl UdpControlPacket {
-
-    /// Creates an empty control packet
-    pub fn new() -> UdpControlPacket {
-        UdpControlPacket {
-            seqnum: 1,
-            control: Control::empty(),
-            request: None,
-            alliance: Alliance::new_red(1),
-            tags: Vec::new()
-        }
-    }
-
     /// Encodes the current state of the packet into a vec to send to the roboRIO
     pub fn encode(&self) -> Vec<u8> {
         let mut buf = vec![];
@@ -45,10 +33,5 @@ impl UdpControlPacket {
         }
 
         buf
-    }
-
-    /// Update the sequence number
-    pub fn increment_seqnum(&mut self) {
-        self.seqnum += 1;
     }
 }

@@ -6,17 +6,21 @@ use byteorder::{WriteBytesExt, BigEndian};
 
 use crate::util::to_u8_vec;
 
-// Tag wrapper enum
+/// Enum wrapping possible outgoing UDP tags
 #[derive(Clone)]
-pub enum TagType {
+pub enum UdpTag {
+    /// Tag sent to inform user code of the time left in the current mode
     Countdown(Countdown),
+    /// Tag sent to provide joystick input to the user code
     Joysticks(Joysticks),
+    /// Tag sent to update the roboRIO system clock to match that of the driver station
     DateTime(DateTime),
+    /// Tag sent to update the roboRIO timezone. Sent alongside the DateTime tag
     Timezone(Timezone),
 }
 
 /// Represents an outgoing UDP tag
-pub trait Tag {
+pub(crate) trait Tag {
     fn id(&self) -> usize;
 
     fn data(&self) -> Vec<u8>;

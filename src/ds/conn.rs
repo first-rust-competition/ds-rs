@@ -1,11 +1,11 @@
-use super::state::{State, Mode};
+use super::state::State;
 use super::Signal;
 
 use crate::util::*;
 use crate::inbound::udp::UdpResponsePacket;
 use crate::inbound::tcp::*;
 use crate::outbound::udp::types::tags::{*, DateTime as DTTag};
-use crate::outbound::tcp::tags::*;
+use crate::outbound::tcp::*;
 use crate::inbound::udp::types::Trace;
 
 use std::net::{UdpSocket, TcpStream};
@@ -24,7 +24,7 @@ use failure::bail;
 use crate::Result;
 
 /// Contains the logic for sending and receiving messages over UDP to/from the roboRIO
-pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Signal>, team_number: u32) -> Result<()> {
+pub(crate) fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Signal>, team_number: u32) -> Result<()> {
     let mut tcp_connected = false;
     let target_ip = ip_from_team_number(team_number);
 
@@ -68,12 +68,12 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
                         let month = local.date().month0() as u8;
                         let year = (local.date().year() - 1900) as u8;
                         let tag = DTTag::new(micros, second, minute, hour, day, month, year);
-                        state.queue(TagType::DateTime(tag));
+                        state.queue_udp(UdpTag::DateTime(tag));
 
                         // hardcode the timezone because :screm:
                         // FIXME: maybe dont
                         let tz = Timezone::new("Canada/Eastern");
-                        state.queue(TagType::Timezone(tz));
+                        state.queue_udp(UdpTag::Timezone(tz));
                     }
 
                     if *state.estopped() && !packet.status.emergency_stopped() {
@@ -133,7 +133,7 @@ pub fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Sig
 }
 
 /// Contains logic for communication to/from the roboRIO over TCP
-pub fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u32) -> Result<()> {
+pub(crate) fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u32) -> Result<()> {
     let target_ip = ip_from_team_number(team_number);
 
     match rx.recv() {

@@ -23,8 +23,8 @@ bitflags! {
     }
 }
 
-#[derive(Copy, Clone)]
 /// Struct abstracting the byte value for alliance colour and position
+#[derive(Copy, Clone)]
 pub struct Alliance(pub u8);
 
 impl Alliance {

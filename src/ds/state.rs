@@ -3,7 +3,9 @@ use crate::inbound::tcp::TcpPacket;
 use crate::outbound::udp::UdpControlPacket;
 use crate::outbound::udp::types::*;
 use crate::outbound::udp::types::tags::*;
-use crate::outbound::tcp::tags::*;
+use crate::outbound::tcp::*;
+
+use super::JoystickValue;
 
 use std::f32;
 
@@ -18,7 +20,7 @@ pub struct State {
     enabled: bool,
     estopped: bool,
     pub alliance: Alliance,
-    queued_tags: Vec<TagType>,
+    pending_udp: Vec<UdpTag>,
     joystick_provider: Option<Box<JoystickSupplier>>,
     pub tcp_consumer: Option<Box<TcpConsumer>>,
     pending_tcp: Vec<TcpTag>,
@@ -27,21 +29,7 @@ pub struct State {
     trace: Trace,
 }
 
-#[derive(Debug)]
-pub enum JoystickValue {
-    Axis {
-        id: u8,
-        value: f32,
-    },
-    Button {
-        id: u8,
-        pressed: bool,
-    },
-    POV {
-        id: u8,
-        angle: i16,
-    },
-}
+
 
 impl State {
     pub fn new(alliance: Alliance) -> State {
@@ -55,7 +43,7 @@ impl State {
             battery_voltage: 0.0,
             joystick_provider: None,
             tcp_consumer: None,
-            queued_tags: Vec::new(),
+            pending_udp: Vec::new(),
             pending_tcp: Vec::new(),
             pending_request: None,
         }
@@ -65,12 +53,12 @@ impl State {
         self.pending_request = Some(request);
     }
 
-    pub fn queue(&mut self, tag: TagType) {
-        self.queued_tags.push(tag);
+    pub fn queue_udp(&mut self, tag: UdpTag) {
+        self.pending_udp.push(tag);
     }
 
-    pub fn udp_queue(&self) -> &Vec<TagType> {
-        &self.queued_tags
+    pub fn pending_udp(&self) -> &Vec<UdpTag> {
+        &self.pending_udp
     }
 
     pub fn queue_tcp(&mut self, tag: TcpTag) {
@@ -153,7 +141,7 @@ impl State {
                         }
                     }
                 }
-                self.queue(TagType::Joysticks(Joysticks::new(axes, buttons, povs)));
+                self.queue_udp(UdpTag::Joysticks(Joysticks::new(axes, buttons, povs)));
             }
         }
 
@@ -171,16 +159,16 @@ impl State {
         // Hack to turn the enums into trait objects
         let mut tags: Vec<Box<Tag>> = Vec::new();
 
-        for tag in self.queued_tags.clone() {
+        for tag in self.pending_udp.clone() {
             match tag {
-                TagType::Timezone(tz) => tags.push(Box::new(tz)),
-                TagType::DateTime(dt) => tags.push(Box::new(dt)),
-                TagType::Joysticks(joy) => tags.push(Box::new(joy)),
-                TagType::Countdown(cnt) => tags.push(Box::new(cnt)),
+                UdpTag::Timezone(tz) => tags.push(Box::new(tz)),
+                UdpTag::DateTime(dt) => tags.push(Box::new(dt)),
+                UdpTag::Joysticks(joy) => tags.push(Box::new(joy)),
+                UdpTag::Countdown(cnt) => tags.push(Box::new(cnt)),
             }
         }
 
-        self.queued_tags.clear();
+        self.pending_udp.clear();
 
         UdpControlPacket {
             seqnum: self.udp_seqnum,
@@ -234,6 +222,7 @@ impl State {
     }
 }
 
+/// Represents the current Mode that the robot is in. the `Mode` of the robot is considered separately from whether it is enabled or not
 #[derive(Copy, Clone)]
 pub enum Mode {
     Autonomous,
