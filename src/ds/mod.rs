@@ -32,7 +32,7 @@ pub struct DriverStation {
 
 impl DriverStation {
     /// Creates a new driver station for the given alliance station and team number
-    pub fn new(alliance: Alliance, team_number: u32) -> DriverStation {
+    pub fn new(team_number: u32, alliance: Alliance) -> DriverStation {
         // Channels to communicate to the threads that make up the application, used to break out of infinite loops when the struct is dropped
         let (tx, rx) = unbounded::<Signal>();
 
