@@ -183,8 +183,8 @@ pub(crate) fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_nu
                 let mut buf: SmallVec<[u8; 0x8000]> = smallvec![0u8; size as usize];
                 conn.read_exact(&mut buf[..])?;
 
-                let state = state.lock().unwrap();
-                if let Some(ref consumer) = &state.tcp_consumer {
+                let mut state = state.lock().unwrap();
+                if let Some(ref mut consumer) = &mut state.tcp_consumer {
                     match buf.get(0) {
                         // stdout
                         Some(0x0c) => match Stdout::decode(&buf[1..]) {

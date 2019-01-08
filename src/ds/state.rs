@@ -10,7 +10,7 @@ use super::JoystickValue;
 use std::f32;
 
 type JoystickSupplier = Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static;
-type TcpConsumer = Fn(TcpPacket) + Send + Sync + 'static;
+type TcpConsumer = FnMut(TcpPacket) + Send + Sync + 'static;
 
 /// The inner state of the driver station
 /// contains information about the current mode, enabled status, and pending items for the next iteration of packets
@@ -77,7 +77,7 @@ impl State {
         self.joystick_provider = Some(Box::new(supplier))
     }
 
-    pub fn set_tcp_consumer(&mut self, consumer: impl Fn(TcpPacket) + Send + Sync + 'static) {
+    pub fn set_tcp_consumer(&mut self, consumer: impl FnMut(TcpPacket) + Send + Sync + 'static) {
         self.tcp_consumer = Some(Box::new(consumer));
     }
 

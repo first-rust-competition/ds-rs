@@ -141,7 +141,7 @@ impl DriverStation {
         self.state.lock().unwrap().set_joystick_supplier(supplier);
     }
 
-    pub fn set_tcp_consumer(&mut self, consumer: impl Fn(TcpPacket) + Send + Sync + 'static) {
+    pub fn set_tcp_consumer(&mut self, consumer: impl FnMut(TcpPacket) + Send + Sync + 'static) {
         self.state.lock().unwrap().set_tcp_consumer(consumer);
     }
 
