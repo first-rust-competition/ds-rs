@@ -18,6 +18,7 @@ use crate::outbound::tcp::*;
 use crate::inbound::tcp::TcpPacket;
 use crate::inbound::udp::types::Trace;
 use crate::Result;
+use crate::util::ip_from_team_number;
 
 /// Represents a connection to the roboRIO acting as a driver station
 ///
@@ -31,8 +32,14 @@ pub struct DriverStation {
 }
 
 impl DriverStation {
+
+    pub fn new_team(team_number: u32, alliance: Alliance) -> DriverStation {
+        Self::new(&ip_from_team_number(team_number), team_number, alliance)
+    }
+
     /// Creates a new driver station for the given alliance station and team number
-    pub fn new(team_number: u32, alliance: Alliance) -> DriverStation {
+    /// Connects to the roborio at `ip`. To infer the ip from team_number, use `new_team` instead.
+    pub(crate) fn new(ip: &str, team_number: u32, alliance: Alliance) -> DriverStation {
         // Channels to communicate to the threads that make up the application, used to break out of infinite loops when the struct is dropped
         let (tx, rx) = unbounded::<Signal>();
 
@@ -43,9 +50,10 @@ impl DriverStation {
         let udp_state = state.clone();
         let udp_rx = rx.clone();
         let udp_tx = tx.clone();
+        let udp_ip = ip.to_owned();
         thread::spawn(move || {
             let monkas_tate = udp_state.clone();
-            if udp_thread(udp_state, udp_tx, udp_rx, team_number).is_err() {
+            if udp_thread(udp_state, udp_tx, udp_rx, udp_ip).is_err() {
                 let mut state = monkas_tate.lock().unwrap();
                 state.set_trace(Trace::empty());
                 state.set_battery_voltage(0.0);
@@ -54,9 +62,10 @@ impl DriverStation {
 
         let tcp_state = state.clone();
         let tcp_rx = rx.clone();
+        let tcp_ip = ip.to_owned();
         thread::spawn(move || {
             let monkas_tate = tcp_state.clone();
-            if tcp_thread(tcp_state, tcp_rx, team_number).is_err() {
+            if tcp_thread(tcp_state, tcp_rx, tcp_ip).is_err() {
                 let mut state = monkas_tate.lock().unwrap();
                 state.set_trace(Trace::empty());
                 state.set_battery_voltage(0.0);
@@ -89,51 +98,6 @@ impl DriverStation {
             }
             sig => bail!("Unexpected value {:?}", sig)
         }
-    }
-
-    /// Attempts to reconnect to the roboRIO, assuming that the DS is disconnected
-    /// This method tries to recover from poisoned mutex errors, which come from panicking in the networking threads.
-    /// A new state will be constructed with the same alliance passed in the constructor
-    pub fn reconnect(&mut self) -> Result<()> {
-//        self.thread_tx.try_send(Signal::Disconnect).unwrap();
-
-        if self.state.is_poisoned() {
-            // The alliance is rarely altered, so forcing a lock here to grab its value should be fine.
-            // Poisoned contents are left alone and then dropped once we replace it.
-            let alliance = {
-                let state = self.state.lock().err().unwrap().into_inner();
-                state.alliance
-            };
-
-            self.state = Arc::new(Mutex::new(State::new(alliance)));
-        }
-
-        let team_number = self.team_number;
-
-        let udp_state = self.state.clone();
-        let udp_rx = self.thread_rx.clone();
-        let udp_tx = self.thread_tx.clone();
-        thread::spawn(move || {
-            let monkas_tate = udp_state.clone();
-            if udp_thread(udp_state, udp_tx, udp_rx, team_number).is_err() {
-                let mut state = monkas_tate.lock().unwrap();
-                state.set_trace(Trace::empty());
-                state.set_battery_voltage(0.0);
-            }
-        });
-
-        let tcp_state = self.state.clone();
-        let tcp_rx = self.thread_rx.clone();
-        thread::spawn(move || {
-            let monkas_tate = tcp_state.clone();
-            if tcp_thread(tcp_state, tcp_rx, team_number).is_err() {
-                let mut state = monkas_tate.lock().unwrap();
-                state.set_trace(Trace::empty());
-                state.set_battery_voltage(0.0);
-            }
-        });
-
-        Ok(())
     }
 
     /// Provides a closure that will be called when constructing outbound packets to append joystick values

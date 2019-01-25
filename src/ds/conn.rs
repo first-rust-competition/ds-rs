@@ -24,9 +24,8 @@ use failure::bail;
 use crate::Result;
 
 /// Contains the logic for sending and receiving messages over UDP to/from the roboRIO
-pub(crate) fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Signal>, team_number: u32) -> Result<()> {
+pub(crate) fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Receiver<Signal>, target_ip: String) -> Result<()> {
     let mut tcp_connected = false;
-    let target_ip = ip_from_team_number(team_number);
 
     let mut last = Instant::now();
 
@@ -133,9 +132,7 @@ pub(crate) fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Recei
 }
 
 /// Contains logic for communication to/from the roboRIO over TCP
-pub(crate) fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, team_number: u32) -> Result<()> {
-    let target_ip = ip_from_team_number(team_number);
-
+pub(crate) fn tcp_thread(state: Arc<Mutex<State>>, rx: Receiver<Signal>, target_ip: String) -> Result<()> {
     match rx.recv() {
         Ok(Signal::Disconnect) | Err(_) => return Ok(()),
         _ => {}
