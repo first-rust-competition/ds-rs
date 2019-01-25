@@ -39,7 +39,7 @@ impl DriverStation {
 
     /// Creates a new driver station for the given alliance station and team number
     /// Connects to the roborio at `ip`. To infer the ip from team_number, use `new_team` instead.
-    pub(crate) fn new(ip: &str, team_number: u32, alliance: Alliance) -> DriverStation {
+    pub fn new(ip: &str, team_number: u32, alliance: Alliance) -> DriverStation {
         // Channels to communicate to the threads that make up the application, used to break out of infinite loops when the struct is dropped
         let (tx, rx) = unbounded::<Signal>();
 
