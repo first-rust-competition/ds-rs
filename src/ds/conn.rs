@@ -84,6 +84,10 @@ pub(crate) fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Recei
                         state.set_estop(packet.status.emergency_stopped());
                     }
 
+                    if !packet.trace.is_code_started() {
+                        state.set_estop(false); // Estop gets reset when code is deployed
+                    }
+
                     // Update the state for the next iteration
                     state.increment_seqnum();
                     state.set_trace(packet.trace);
