@@ -43,8 +43,9 @@ pub(crate) fn udp_thread(state: Arc<Mutex<State>>, tx: Sender<Signal>, rx: Recei
 
     loop {
         match rx.try_recv() {
-            Ok(Signal::Disconnect) | Err(crossbeam_channel::TryRecvError::Disconnected) => break,
-            Ok(Signal::Heartbeat) => tx.try_send(Signal::Heartbeat).unwrap(),
+            Ok(Signal::Disconnect) | Err(crossbeam_channel::TryRecvError::Disconnected) => {
+                break;
+            },
             _ => {}
         }
 

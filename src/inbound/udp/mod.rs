@@ -40,6 +40,19 @@ impl UdpResponsePacket {
 
         let need_date = buf.read_u8()? == 1;
 
+        use types::tags::InboundTag;
+        while let Ok(tag_id) = buf.read_u8() {
+            match tag_id {
+                0x01 => { types::tags::JoystickOutput::chomp(buf)?; },
+                0x04 => { types::tags::DiskInfo::chomp(buf)?; },
+                0x05 => { types::tags::CPUInfo::chomp(buf)?; },
+                0x06 => { types::tags::RAMInfo::chomp(buf)?; },
+                0x09 => { types::tags::Unknown::chomp(buf)?; },
+                0x0e => { types::tags::CANMetrics::chomp(buf)?; },
+                _ => {}
+            }
+        }
+
         Ok(UdpResponsePacket {
             seqnum,
             status,

@@ -1,3 +1,5 @@
+pub mod tags;
+
 bitflags! {
     pub struct Status: u8 {
         const ESTOP = 0b1000_0000;

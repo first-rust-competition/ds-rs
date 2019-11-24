@@ -201,7 +201,7 @@ impl DriverStation {
 }
 
 /// Enum representing a value from a Joystick to be transmitted to the roboRIO
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum JoystickValue {
     /// Represents an axis value to be sent to the roboRIO
     ///
@@ -225,7 +225,9 @@ pub enum JoystickValue {
 impl Drop for DriverStation {
     fn drop(&mut self) {
         // When this struct is dropped the threads that we spawned should be stopped otherwise we're leaking
-        self.thread_tx.try_send(Signal::Disconnect).unwrap();
+        self.thread_tx.send(Signal::Disconnect).unwrap();
+        self.thread_tx.send(Signal::Disconnect).unwrap();
+        self.thread_tx.send(Signal::Disconnect).unwrap();
     }
 }
 
