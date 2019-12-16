@@ -2,10 +2,11 @@ pub mod types;
 
 use self::types::*;
 
+use crate::ext::BufExt;
 use crate::Result;
 use failure::bail;
 
-use byteorder::{ReadBytesExt, BigEndian};
+use bytes::{Buf, BufMut, BytesMut};
 
 /// Response packet sent by the RIO over UDP every ~20ms.
 #[derive(Debug)]
@@ -19,13 +20,9 @@ pub struct UdpResponsePacket {
 
 impl UdpResponsePacket {
     /// Attempts to decode a valid response packet from the given buffer
-    /// Will return Err() if any of the reads fail, or if the sequence number of the packet
-    /// doesn't match the expected sequence number
-    pub fn decode(mut buf: &[u8], expected_seqnum: u16) -> Result<UdpResponsePacket> {
-        let seqnum = buf.read_u16::<BigEndian>()?;
-        if seqnum != expected_seqnum {
-            bail!("Unexpeced sequence number {}. Expected {}", seqnum, expected_seqnum);
-        }
+    /// Will return Err() if any of the reads fail.
+    pub fn decode(buf: &mut impl Buf) -> Result<UdpResponsePacket> {
+        let seqnum = buf.read_u16_be()?;
 
         buf.read_u8()?; // Get rid of comm version
 
@@ -40,15 +37,27 @@ impl UdpResponsePacket {
 
         let need_date = buf.read_u8()? == 1;
 
-        use types::tags::InboundTag;
+        use crate::util::InboundTag;
         while let Ok(tag_id) = buf.read_u8() {
             match tag_id {
-                0x01 => { types::tags::JoystickOutput::chomp(buf)?; },
-                0x04 => { types::tags::DiskInfo::chomp(buf)?; },
-                0x05 => { types::tags::CPUInfo::chomp(buf)?; },
-                0x06 => { types::tags::RAMInfo::chomp(buf)?; },
-                0x09 => { types::tags::Unknown::chomp(buf)?; },
-                0x0e => { types::tags::CANMetrics::chomp(buf)?; },
+                0x01 => {
+                    types::tags::JoystickOutput::chomp(buf)?;
+                }
+                0x04 => {
+                    types::tags::DiskInfo::chomp(buf)?;
+                }
+                0x05 => {
+                    types::tags::CPUInfo::chomp(buf)?;
+                }
+                0x06 => {
+                    types::tags::RAMInfo::chomp(buf)?;
+                }
+                0x09 => {
+                    types::tags::Unknown::chomp(buf)?;
+                }
+                0x0e => {
+                    types::tags::CANMetrics::chomp(buf)?;
+                }
                 _ => {}
             }
         }

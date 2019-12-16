@@ -1,8 +1,7 @@
 //! This module contains various tags that can be attached to the outbound UDP packet
 //! The `Tag` trait contains the core logic, and is inherited by structs with specific roles
 
-use byteorder::{WriteBytesExt, BigEndian};
-
+use byteorder::{BigEndian, WriteBytesExt};
 
 use crate::util::to_u8_vec;
 
@@ -20,7 +19,7 @@ pub enum UdpTag {
 }
 
 /// Represents an outgoing UDP tag
-pub(crate) trait Tag {
+pub(crate) trait Tag: Send {
     fn id(&self) -> usize;
 
     fn data(&self) -> Vec<u8>;
@@ -44,7 +43,7 @@ pub struct Countdown {
 impl Countdown {
     pub fn new(seconds: f32) -> Countdown {
         Countdown {
-            seconds_remaining: seconds
+            seconds_remaining: seconds,
         }
     }
 }
@@ -75,7 +74,7 @@ impl Joysticks {
         Joysticks {
             axes,
             buttons,
-            povs
+            povs,
         }
     }
 }
@@ -116,11 +115,19 @@ pub struct DateTime {
     hour: u8,
     day: u8,
     month: u8,
-    year: u8
+    year: u8,
 }
 
 impl DateTime {
-    pub fn new(micros: u32, second: u8, minute: u8, hour: u8, day: u8, month: u8, year: u8) -> DateTime {
+    pub fn new(
+        micros: u32,
+        second: u8,
+        minute: u8,
+        hour: u8,
+        day: u8,
+        month: u8,
+        year: u8,
+    ) -> DateTime {
         DateTime {
             micros,
             second,
@@ -128,7 +135,7 @@ impl DateTime {
             hour,
             day,
             month,
-            year
+            year,
         }
     }
 }
@@ -160,9 +167,7 @@ pub struct Timezone {
 
 impl Timezone {
     pub fn new(tz: &str) -> Timezone {
-        Timezone {
-            tz: tz.to_string()
-        }
+        Timezone { tz: tz.to_string() }
     }
 }
 
@@ -185,7 +190,9 @@ mod test {
 
     #[test]
     fn verify_format() {
-        let countdown = Countdown { seconds_remaining: 2f32 };
+        let countdown = Countdown {
+            seconds_remaining: 2f32,
+        };
         let buf = countdown.construct();
 
         assert_eq!(buf, &[0x05, 0x07, 0x040, 0x0, 0x0, 0x0]);
@@ -196,10 +203,9 @@ mod test {
         let joysticks = Joysticks {
             axes: vec![],
             buttons: vec![true, true, false, false, false, true, false],
-            povs: vec![]
+            povs: vec![],
         };
         let buf = joysticks.construct();
         println!("{:?}", buf);
     }
 }
-

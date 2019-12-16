@@ -1,5 +1,7 @@
+use crate::ext::BufExt;
+use crate::util::InboundTag;
 use crate::Result;
-use byteorder::ReadBytesExt;
+use bytes::Buf;
 
 macro_rules! gen_stub_tags {
     ($($struct_name:ident : $num_bytes:expr),*) => {
@@ -9,7 +11,7 @@ macro_rules! gen_stub_tags {
         }
 
         impl InboundTag for $struct_name {
-            fn chomp(mut buf: &[u8]) -> Result<Self> {
+            fn chomp(mut buf: &mut impl Buf) -> Result<Self> {
                 let mut _data = [0; $num_bytes];
 
                 for i in 0..$num_bytes {
@@ -21,10 +23,6 @@ macro_rules! gen_stub_tags {
         }
         )*
     }
-}
-
-pub(crate) trait InboundTag {
-    fn chomp(buf: &[u8]) -> Result<Self> where Self: Sized;
 }
 
 gen_stub_tags!(PDPLog : 25, JoystickOutput : 8, DiskInfo : 4, CPUInfo : 20, RAMInfo : 8, Unknown : 9, CANMetrics : 14);

@@ -1,6 +1,5 @@
 pub mod tags;
 
-
 /// bitflag struct for the Control value of the packet
 bitflags! {
     pub struct Control: u8 {
@@ -30,14 +29,14 @@ pub struct Alliance(pub u8);
 impl Alliance {
     /// Creates a new `Alliance` for the given position, on the red alliance
     pub fn new_red(position: u8) -> Alliance {
-//        assert!((1u8..3).contains(&position));
+        //        assert!((1u8..3).contains(&position));
 
         Alliance(position - 1)
     }
 
     /// Creates a new `Alliance` for the given position, on the blue alliance
     pub fn new_blue(position: u8) -> Alliance {
-//        assert!((1u8..3).contains(&position));
+        //        assert!((1u8..3).contains(&position));
 
         Alliance(position + 2)
     }

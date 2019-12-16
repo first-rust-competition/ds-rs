@@ -1,16 +1,15 @@
-use crate::inbound::udp::types::*;
-use crate::inbound::tcp::TcpPacket;
-use crate::outbound::udp::UdpControlPacket;
-use crate::outbound::udp::types::*;
-use crate::outbound::udp::types::tags::*;
-use crate::outbound::tcp::*;
-
 use super::JoystickValue;
 
+use crate::proto::tcp::outbound::TcpTag;
+use crate::proto::udp::inbound::types::*;
+use crate::proto::udp::outbound::types::tags::{Joysticks, Tag, UdpTag};
+use crate::proto::udp::outbound::types::*;
+use crate::proto::udp::outbound::UdpControlPacket;
+use crate::TcpPacket;
 use std::f32;
 
-type JoystickSupplier = Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static;
-type TcpConsumer = FnMut(TcpPacket) + Send + Sync + 'static;
+type JoystickSupplier = dyn Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static;
+type TcpConsumer = dyn FnMut(TcpPacket) + Send + Sync + 'static;
 
 /// The inner state of the driver station
 /// contains information about the current mode, enabled status, and pending items for the next iteration of packets
@@ -28,8 +27,6 @@ pub struct State {
     pending_request: Option<Request>,
     trace: Trace,
 }
-
-
 
 impl State {
     pub fn new(alliance: Alliance) -> State {
@@ -73,7 +70,10 @@ impl State {
         &mut self.pending_tcp
     }
 
-    pub fn set_joystick_supplier(&mut self, supplier: impl Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static) {
+    pub fn set_joystick_supplier(
+        &mut self,
+        supplier: impl Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static,
+    ) {
         self.joystick_provider = Some(Box::new(supplier))
     }
 
@@ -157,7 +157,7 @@ impl State {
         }
 
         // Hack to turn the enums into trait objects
-        let mut tags: Vec<Box<Tag>> = Vec::new();
+        let mut tags: Vec<Box<dyn Tag>> = Vec::new();
 
         for tag in self.pending_udp.clone() {
             match tag {
@@ -251,4 +251,3 @@ impl Mode {
         }
     }
 }
-

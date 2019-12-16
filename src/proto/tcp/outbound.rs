@@ -1,4 +1,4 @@
-use byteorder::{WriteBytesExt, BigEndian};
+use byteorder::{BigEndian, WriteBytesExt};
 
 #[derive(Debug, Clone)]
 pub enum TcpTag {
@@ -27,7 +27,7 @@ pub(crate) trait OutgoingTcpTag {
 #[derive(Debug, Clone)]
 pub struct MatchInfo {
     competition: String,
-    match_type: MatchType
+    match_type: MatchType,
 }
 
 impl OutgoingTcpTag for MatchInfo {

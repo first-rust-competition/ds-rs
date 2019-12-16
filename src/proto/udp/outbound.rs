@@ -1,8 +1,12 @@
 pub mod types;
 
-use byteorder::{WriteBytesExt, BigEndian};
-use self::types::*;
 use self::types::tags::*;
+use self::types::*;
+use crate::proto::udp::inbound::UdpResponsePacket;
+use byteorder::{BigEndian, WriteBytesExt};
+use bytes::BytesMut;
+use std::io;
+use std::io::Error;
 
 /// UDP control packet to send to the roboRIO
 pub struct UdpControlPacket {
@@ -10,7 +14,7 @@ pub struct UdpControlPacket {
     pub(crate) control: Control,
     pub(crate) request: Option<Request>,
     pub(crate) alliance: Alliance,
-    pub(crate) tags: Vec<Box<Tag>>,
+    pub(crate) tags: Vec<Box<dyn Tag>>,
 }
 
 impl UdpControlPacket {
@@ -22,11 +26,10 @@ impl UdpControlPacket {
         buf.push(self.control.bits());
         match &self.request {
             Some(ref req) => buf.push(req.bits()),
-            None => buf.push(0)
+            None => buf.push(0),
         }
 
         buf.push(self.alliance.0);
-
 
         for tag in &self.tags {
             buf.extend(tag.construct());
