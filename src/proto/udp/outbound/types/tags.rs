@@ -6,7 +6,7 @@ use byteorder::{BigEndian, WriteBytesExt};
 use crate::util::to_u8_vec;
 
 /// Enum wrapping possible outgoing UDP tags
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum UdpTag {
     /// Tag sent to inform user code of the time left in the current mode
     Countdown(Countdown),
@@ -35,7 +35,7 @@ pub(crate) trait Tag: Send {
 }
 
 /// Tag containing the time remaining in the current mode
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Countdown {
     seconds_remaining: f32,
 }
@@ -62,7 +62,7 @@ impl Tag for Countdown {
 }
 
 /// Tag containing values from joysticks
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Joysticks {
     axes: Vec<i8>,
     buttons: Vec<bool>,
@@ -107,7 +107,7 @@ impl Tag for Joysticks {
 }
 
 /// Tag containing the current date and time in UTC
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct DateTime {
     micros: u32,
     second: u8,
@@ -160,7 +160,7 @@ impl Tag for DateTime {
 }
 
 /// Tag containing the current timezone of the RIO
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Timezone {
     tz: String,
 }

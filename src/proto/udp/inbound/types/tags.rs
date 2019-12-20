@@ -11,7 +11,7 @@ macro_rules! gen_stub_tags {
         }
 
         impl InboundTag for $struct_name {
-            fn chomp(mut buf: &mut impl Buf) -> Result<Self> {
+            fn chomp(buf: &mut impl Buf) -> Result<Self> {
                 let mut _data = [0; $num_bytes];
 
                 for i in 0..$num_bytes {

@@ -65,6 +65,7 @@ impl OutgoingTcpTag for GameData {
 
 #[repr(u8)]
 #[derive(Debug, Copy, Clone)]
+#[allow(unused)]
 pub enum MatchType {
     None = 0,
     Practice = 1,

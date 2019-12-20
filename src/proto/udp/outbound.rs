@@ -2,11 +2,7 @@ pub mod types;
 
 use self::types::tags::*;
 use self::types::*;
-use crate::proto::udp::inbound::UdpResponsePacket;
 use byteorder::{BigEndian, WriteBytesExt};
-use bytes::BytesMut;
-use std::io;
-use std::io::Error;
 
 /// UDP control packet to send to the roboRIO
 pub struct UdpControlPacket {
