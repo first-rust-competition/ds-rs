@@ -23,6 +23,7 @@ pub(crate) mod util;
 pub use self::ds::state::Mode;
 pub use self::ds::{DriverStation, JoystickValue};
 pub use self::proto::tcp::inbound::*;
+pub use self::proto::tcp::outbound::*;
 pub use self::proto::udp::outbound::types::*;
 
 pub type Result<T> = std::result::Result<T, failure::Error>;

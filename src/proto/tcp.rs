@@ -3,6 +3,7 @@ use crate::{Stdout, TcpPacket};
 use bytes::{Buf, BytesMut};
 use std::io;
 use tokio_util::codec::{Decoder, Encoder};
+use crate::proto::tcp::outbound::{TcpTag, OutgoingTcpTag};
 
 pub mod inbound;
 pub mod outbound;
@@ -10,10 +11,18 @@ pub mod outbound;
 pub struct DsTcpCodec;
 
 impl Encoder for DsTcpCodec {
-    type Item = ();
+    type Item = TcpTag;
     type Error = failure::Error;
 
-    fn encode(&mut self, _item: Self::Item, _dst: &mut BytesMut) -> Result<(), Self::Error> {
+    fn encode(&mut self, item: Self::Item, dst: &mut BytesMut) -> Result<(), Self::Error> {
+        match item {
+            TcpTag::GameData(gd) => {
+                dst.extend(gd.construct().iter());
+            }
+            TcpTag::MatchInfo(mi) => {
+                dst.extend(mi.construct().iter())
+            }
+        }
         Ok(())
     }
 }

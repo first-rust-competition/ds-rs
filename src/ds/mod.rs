@@ -26,17 +26,18 @@ use crate::{Result, TcpPacket};
 /// and also manages the threads that manage network connections and joysticks
 pub struct DriverStation {
     thread_tx: UnboundedSender<Signal>,
+    team_number: u32,
     state: Arc<DsState>,
 }
 
 impl DriverStation {
     pub fn new_team(team_number: u32, alliance: Alliance) -> DriverStation {
-        Self::new(&ip_from_team_number(team_number), alliance)
+        Self::new(&ip_from_team_number(team_number), alliance, team_number)
     }
 
     /// Creates a new driver station for the given alliance station and team number
     /// Connects to the roborio at `ip`. To infer the ip from team_number, use `new_team` instead.
-    pub fn new(ip: &str, alliance: Alliance) -> DriverStation {
+    pub fn new(ip: &str, alliance: Alliance, team_number: u32) -> DriverStation {
         // Channels to communicate to the threads that make up the application, used to break out of infinite loops when the struct is dropped
         let (tx, rx) = unbounded::<Signal>();
 
@@ -56,6 +57,7 @@ impl DriverStation {
         DriverStation {
             thread_tx: tx,
             state,
+            team_number
         }
     }
 
@@ -82,7 +84,12 @@ impl DriverStation {
     }
 
     pub fn set_team_number(&mut self, team_number: u32) {
+        self.team_number = team_number;
         self.thread_tx.unbounded_send(Signal::NewTarget(ip_from_team_number(team_number))).unwrap();
+    }
+
+    pub fn team_number(&self) -> u32 {
+        self.team_number
     }
 
     /// Sets the game specific message sent to the robot, and used during the autonomous period
@@ -92,7 +99,7 @@ impl DriverStation {
         }
 
         block_on(self.state
-            .send()
+            .tcp()
             .lock())
             .queue_tcp(TcpTag::GameData(GameData {
                 gsm: message.to_string(),
@@ -147,12 +154,7 @@ impl DriverStation {
 
     /// Queues a TCP tag to be transmitted to the roboRIO
     pub fn queue_tcp(&mut self, tcp_tag: TcpTag) {
-        block_on(self.state.send().lock()).queue_tcp(tcp_tag);
-    }
-
-    /// Returns a Vec of the current contents of the TCP queue
-    pub fn tcp_queue(&self) -> Vec<TcpTag> {
-        block_on(self.state.send().lock()).pending_tcp().clone()
+        block_on(self.state.tcp().lock()).queue_tcp(tcp_tag);
     }
 
     /// Disables outputs on the robot and disallows enabling it until the code is restarted.

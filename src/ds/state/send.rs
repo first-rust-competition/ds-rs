@@ -13,7 +13,6 @@ pub struct SendState {
     estopped: bool,
     pub alliance: Alliance,
     pending_udp: Vec<UdpTag>,
-    pending_tcp: Vec<TcpTag>,
     joystick_provider: Option<Box<JoystickSupplier>>,
     pending_request: Option<Request>
 }
@@ -27,7 +26,6 @@ impl SendState {
             estopped: false,
             alliance,
             pending_udp: Vec::new(),
-            pending_tcp: Vec::new(),
             joystick_provider: None::<Box<JoystickSupplier>>,
             pending_request: None::<Request>
         }
@@ -43,14 +41,6 @@ impl SendState {
 
     pub fn pending_udp(&self) -> &Vec<UdpTag> {
         &self.pending_udp
-    }
-
-    pub fn queue_tcp(&mut self, tag: TcpTag) {
-        self.pending_tcp.push(tag);
-    }
-
-    pub fn pending_tcp(&self) -> &Vec<TcpTag> {
-        &self.pending_tcp
     }
 
     pub fn set_joystick_supplier(&mut self,

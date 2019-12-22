@@ -6,6 +6,7 @@ use crate::proto::udp::outbound::types::tags::{DateTime as DTTag, *};
 
 use futures_channel::mpsc::UnboundedReceiver;
 use futures_util::stream::StreamExt;
+use futures_util::sink::SinkExt;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::net::{TcpStream, UdpSocket};
@@ -23,6 +24,7 @@ use crate::Result;
 use futures_util::future::Either;
 use futures_util::stream::select;
 use crate::ds::state::DsState;
+use crate::proto::tcp::outbound::TcpTag;
 
 pub(crate) async fn udp_conn(
     state: Arc<DsState>,
@@ -81,7 +83,6 @@ pub(crate) async fn udp_conn(
                 match packet {
                     Ok(packet) => {
                         let (packet, _): (UdpResponsePacket, _) = packet;
-                        println!("Got packet {}, trying to lock state", packet.seqnum);
                         let mut _state = state.recv().lock().await;
 
                         if packet.need_date {
@@ -105,7 +106,6 @@ pub(crate) async fn udp_conn(
                         }
 
                         _state.set_trace(packet.trace);
-                        println!("{} --- Updating battery", packet.seqnum);
                         _state.set_battery_voltage(packet.battery);
                     }
                     Err(e) => println!("Error decoding packet: {:?}", e)
@@ -132,14 +132,18 @@ pub(crate) async fn udp_conn(
 pub(crate) async fn tcp_conn(state: Arc<DsState>, target_ip: String, rx: UnboundedReceiver<Signal>) -> Result<()> {
     let conn = TcpStream::connect(&format!("{}:1740", target_ip)).await?;
     let codec = DsTcpCodec.framed(conn);
+    let (mut codec_tx, codec_rx) = codec.split();
 
-    let mut stream = select(codec.map(Either::Left), rx.map(Either::Right));
+    let (tag_tx, tag_rx) = unbounded::<TcpTag>();
+    state.tcp().lock().await.set_tcp_tx(Some(tag_tx));
+
+    let stream = select(codec_rx.map(Either::Left), rx.map(Either::Right));
+    let mut stream = select(stream.map(Either::Left), tag_rx.map(Either::Right));
 
     let state = state.tcp();
-    loop {
-        let packet = stream.next().await;
-        if let Some(msg) = packet {
-            match msg {
+    while let Some(msg) = stream.next().await {
+        match msg {
+            Either::Left(left) => match left {
                 Either::Left(packet) => {
                     if let Ok(packet) = packet {
                         let mut state = state.lock().await;
@@ -148,9 +152,15 @@ pub(crate) async fn tcp_conn(state: Arc<DsState>, target_ip: String, rx: Unbound
                         }
                     }
                 }
-                Either::Right(_) => return Ok(())
+                Either::Right(_) => {
+                    state.lock().await.set_tcp_tx(None);
+                }
+            }
+            Either::Right(tag) => {
+                let _ = codec_tx.send(tag).await;
             }
         }
     }
+    Ok(())
 }
 

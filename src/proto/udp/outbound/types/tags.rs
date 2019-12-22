@@ -206,6 +206,5 @@ mod test {
             povs: vec![],
         };
         let buf = joysticks.construct();
-        println!("{:?}", buf);
     }
 }

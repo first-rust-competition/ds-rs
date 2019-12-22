@@ -1,6 +1,10 @@
 use crate::ds::state::TcpConsumer;
 use crate::TcpPacket;
 use crate::proto::udp::inbound::types::*;
+use crate::proto::tcp::outbound::TcpTag;
+use crate::Result;
+use futures_channel::mpsc::UnboundedSender;
+use failure::format_err;
 
 pub struct RecvState {
     battery_voltage: f32,
@@ -8,14 +12,26 @@ pub struct RecvState {
 }
 
 pub struct TcpState {
-    pub tcp_consumer: Option<Box<TcpConsumer>>
+    pub tcp_consumer: Option<Box<TcpConsumer>>,
+    pending_tcp: Option<UnboundedSender<TcpTag>>
 }
 
 impl TcpState {
     pub fn new() -> TcpState {
         TcpState {
-            tcp_consumer: None
+            tcp_consumer: None,
+            pending_tcp: None
         }
+    }
+
+    pub fn queue_tcp(&self, tag: TcpTag) -> Result<()> {
+        self.pending_tcp.clone().ok_or(format_err!("TCP task not spawned."))
+            .and_then(move |tx| tx.unbounded_send(tag).map_err(|e| e.into()))
+            .map(|_| ())
+    }
+
+    pub fn set_tcp_tx(&mut self, tx: Option<UnboundedSender<TcpTag>>) {
+        self.pending_tcp = tx;
     }
 
     pub fn set_tcp_consumer(&mut self, consumer: impl FnMut(TcpPacket) + Send + Sync + 'static) {
