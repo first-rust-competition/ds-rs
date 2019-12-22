@@ -197,14 +197,4 @@ mod test {
 
         assert_eq!(buf, &[0x05, 0x07, 0x040, 0x0, 0x0, 0x0]);
     }
-
-    #[test]
-    fn verify_joysticks() {
-        let joysticks = Joysticks {
-            axes: vec![],
-            buttons: vec![true, true, false, false, false, true, false],
-            povs: vec![],
-        };
-        let buf = joysticks.construct();
-    }
 }

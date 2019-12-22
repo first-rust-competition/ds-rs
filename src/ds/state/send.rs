@@ -2,7 +2,6 @@ use crate::{Alliance, Mode, JoystickValue};
 use crate::proto::udp::outbound::types::tags::*;
 use crate::proto::udp::outbound::types::{Request, Control};
 use crate::ds::state::JoystickSupplier;
-use crate::proto::tcp::outbound::TcpTag;
 use crate::proto::udp::outbound::*;
 use std::f32;
 

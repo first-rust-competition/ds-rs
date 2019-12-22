@@ -98,7 +98,7 @@ impl DriverStation {
             bail!("Message should be 3 characters long");
         }
 
-        block_on(self.state
+        let _ = block_on(self.state
             .tcp()
             .lock())
             .queue_tcp(TcpTag::GameData(GameData {
@@ -154,7 +154,7 @@ impl DriverStation {
 
     /// Queues a TCP tag to be transmitted to the roboRIO
     pub fn queue_tcp(&mut self, tcp_tag: TcpTag) {
-        block_on(self.state.tcp().lock()).queue_tcp(tcp_tag);
+        let _ = block_on(self.state.tcp().lock()).queue_tcp(tcp_tag);
     }
 
     /// Disables outputs on the robot and disallows enabling it until the code is restarted.
