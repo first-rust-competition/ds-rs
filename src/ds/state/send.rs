@@ -25,8 +25,8 @@ impl SendState {
             estopped: false,
             alliance,
             pending_udp: Vec::new(),
-            joystick_provider: None::<Box<JoystickSupplier>>,
-            pending_request: None::<Request>
+            joystick_provider: None,
+            pending_request: None,
         }
     }
 
