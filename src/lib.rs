@@ -15,16 +15,15 @@ extern crate bitflags;
 #[macro_use]
 extern crate smallvec;
 
-mod outbound;
-mod inbound;
 mod ds;
+mod ext;
+mod proto;
 pub(crate) mod util;
 
-pub use self::outbound::udp::types::Alliance;
-pub use self::outbound::udp::types::tags::*;
-pub use self::ds::{DriverStation, JoystickValue};
 pub use self::ds::state::Mode;
-pub use self::inbound::tcp::*;
+pub use self::ds::{DriverStation, JoystickValue};
+pub use self::proto::tcp::inbound::*;
+pub use self::proto::tcp::outbound::*;
+pub use self::proto::udp::outbound::types::*;
 
 pub type Result<T> = std::result::Result<T, failure::Error>;
-

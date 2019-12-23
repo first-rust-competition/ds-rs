@@ -1,8 +1,7 @@
 pub mod tags;
 
-
-/// bitflag struct for the Control value of the packet
 bitflags! {
+    /// bitflag struct for the Control value of the packet
     pub struct Control: u8 {
         const ESTOP = 0b1000_0000;
         const FMS_CONNECTED = 0b0000_1000;
@@ -15,8 +14,8 @@ bitflags! {
     }
 }
 
-/// bitflags for reboot and code restart requests
 bitflags! {
+    /// bitflags for reboot and code restart requests
     pub struct Request: u8 {
         const REBOOT_ROBORIO = 0b0000_1000;
         const RESTART_CODE = 0b0000_0100;
@@ -24,20 +23,20 @@ bitflags! {
 }
 
 /// Struct abstracting the byte value for alliance colour and position
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Alliance(pub u8);
 
 impl Alliance {
     /// Creates a new `Alliance` for the given position, on the red alliance
     pub fn new_red(position: u8) -> Alliance {
-//        assert!((1u8..3).contains(&position));
+        //        assert!((1u8..3).contains(&position));
 
         Alliance(position - 1)
     }
 
     /// Creates a new `Alliance` for the given position, on the blue alliance
     pub fn new_blue(position: u8) -> Alliance {
-//        assert!((1u8..3).contains(&position));
+        //        assert!((1u8..3).contains(&position));
 
         Alliance(position + 2)
     }
