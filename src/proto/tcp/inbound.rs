@@ -25,7 +25,6 @@ pub struct Stdout {
     pub seqnum: u16,
 }
 
-
 impl Stdout {
     pub fn decode(buf: &mut impl Buf, len: usize) -> CResult<Self> {
         let timestamp = buf.read_f32_be()?;

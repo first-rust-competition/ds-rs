@@ -1,15 +1,15 @@
 use super::JoystickValue;
 
+use crate::ds::state::recv::{RecvState, TcpState};
+use crate::ds::state::send::SendState;
+use crate::proto::udp::inbound::types::Status;
+use crate::proto::udp::outbound::types::{Alliance, Control};
 use crate::TcpPacket;
 use std::fmt::Debug;
 use tokio::sync::Mutex;
-use crate::ds::state::send::SendState;
-use crate::ds::state::recv::{RecvState, TcpState};
-use crate::proto::udp::outbound::types::{Control, Alliance};
-use crate::proto::udp::inbound::types::Status;
 
-mod send;
 mod recv;
+mod send;
 
 type JoystickSupplier = dyn Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static;
 type TcpConsumer = dyn FnMut(TcpPacket) + Send + Sync + 'static;
@@ -29,13 +29,12 @@ impl DsState {
         DsState {
             send_state,
             recv_state,
-            tcp_state
+            tcp_state,
         }
     }
 
     pub fn send(&self) -> &Mutex<SendState> {
         &self.send_state
-
     }
 
     pub fn recv(&self) -> &Mutex<RecvState> {

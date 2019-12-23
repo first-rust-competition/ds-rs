@@ -1,10 +1,10 @@
 use crate::ds::state::TcpConsumer;
-use crate::TcpPacket;
-use crate::proto::udp::inbound::types::*;
 use crate::proto::tcp::outbound::TcpTag;
+use crate::proto::udp::inbound::types::*;
 use crate::Result;
-use futures_channel::mpsc::UnboundedSender;
+use crate::TcpPacket;
 use failure::format_err;
+use futures_channel::mpsc::UnboundedSender;
 
 pub struct RecvState {
     battery_voltage: f32,
@@ -13,19 +13,21 @@ pub struct RecvState {
 
 pub struct TcpState {
     pub tcp_consumer: Option<Box<TcpConsumer>>,
-    pending_tcp: Option<UnboundedSender<TcpTag>>
+    pending_tcp: Option<UnboundedSender<TcpTag>>,
 }
 
 impl TcpState {
     pub fn new() -> TcpState {
         TcpState {
             tcp_consumer: None,
-            pending_tcp: None
+            pending_tcp: None,
         }
     }
 
     pub fn queue_tcp(&self, tag: TcpTag) -> Result<()> {
-        self.pending_tcp.clone().ok_or(format_err!("TCP task not spawned."))
+        self.pending_tcp
+            .clone()
+            .ok_or(format_err!("TCP task not spawned."))
             .and_then(move |tx| tx.unbounded_send(tag).map_err(|e| e.into()))
             .map(|_| ())
     }
@@ -43,7 +45,7 @@ impl RecvState {
     pub fn new() -> RecvState {
         RecvState {
             battery_voltage: 0f32,
-            trace: Trace::empty()
+            trace: Trace::empty(),
         }
     }
 

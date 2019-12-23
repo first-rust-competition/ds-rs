@@ -1,6 +1,6 @@
 use crate::proto::udp::inbound::UdpResponsePacket;
 use crate::proto::udp::outbound::UdpControlPacket;
-use bytes::{BytesMut, Buf};
+use bytes::{Buf, BytesMut};
 use tokio_util::codec::{Decoder, Encoder};
 
 pub mod inbound;
@@ -20,7 +20,7 @@ impl Decoder for DsUdpCodec {
                 src.advance(len);
                 return Ok(Some(packet));
             }
-            Err(e) => Err(e)
+            Err(e) => Err(e),
         }
     }
 }

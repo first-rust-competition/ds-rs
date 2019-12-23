@@ -78,12 +78,15 @@ impl UdpResponsePacket {
             }
         }
 
-        Ok((UdpResponsePacket {
-            seqnum,
-            status,
-            trace,
-            battery,
-            need_date,
-        }, len))
+        Ok((
+            UdpResponsePacket {
+                seqnum,
+                status,
+                trace,
+                battery,
+                need_date,
+            },
+            len,
+        ))
     }
 }

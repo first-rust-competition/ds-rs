@@ -1,9 +1,9 @@
 use crate::ext::BufExt;
+use crate::proto::tcp::outbound::{OutgoingTcpTag, TcpTag};
 use crate::{Stdout, TcpPacket};
 use bytes::{Buf, BytesMut};
 use std::io;
 use tokio_util::codec::{Decoder, Encoder};
-use crate::proto::tcp::outbound::{TcpTag, OutgoingTcpTag};
 
 pub mod inbound;
 pub mod outbound;
@@ -19,9 +19,7 @@ impl Encoder for DsTcpCodec {
             TcpTag::GameData(gd) => {
                 dst.extend(gd.construct().iter());
             }
-            TcpTag::MatchInfo(mi) => {
-                dst.extend(mi.construct().iter())
-            }
+            TcpTag::MatchInfo(mi) => dst.extend(mi.construct().iter()),
         }
         Ok(())
     }
@@ -39,9 +37,10 @@ impl Decoder for DsTcpCodec {
 
             let id = buf.read_u8()?;
             match id {
-                0x0c => {
-                    Ok((TcpPacket::Stdout(Stdout::decode(buf, len as usize - 1)?), len as usize + 2))
-                },
+                0x0c => Ok((
+                    TcpPacket::Stdout(Stdout::decode(buf, len as usize - 1)?),
+                    len as usize + 2,
+                )),
                 _ => {
                     for _ in 0..(len - 1) {
                         let _ = buf.read_u8()?;

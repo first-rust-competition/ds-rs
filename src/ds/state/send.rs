@@ -1,8 +1,8 @@
-use crate::{Alliance, Mode, JoystickValue};
-use crate::proto::udp::outbound::types::tags::*;
-use crate::proto::udp::outbound::types::{Request, Control};
 use crate::ds::state::JoystickSupplier;
+use crate::proto::udp::outbound::types::tags::*;
+use crate::proto::udp::outbound::types::{Control, Request};
 use crate::proto::udp::outbound::*;
+use crate::{Alliance, JoystickValue, Mode};
 use std::f32;
 
 pub struct SendState {
@@ -13,7 +13,7 @@ pub struct SendState {
     pub alliance: Alliance,
     pending_udp: Vec<UdpTag>,
     joystick_provider: Option<Box<JoystickSupplier>>,
-    pending_request: Option<Request>
+    pending_request: Option<Request>,
 }
 
 impl SendState {
@@ -42,9 +42,10 @@ impl SendState {
         &self.pending_udp
     }
 
-    pub fn set_joystick_supplier(&mut self,
-                                 supplier: impl Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static)
-    {
+    pub fn set_joystick_supplier(
+        &mut self,
+        supplier: impl Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static,
+    ) {
         self.joystick_provider = Some(Box::new(supplier))
     }
 
@@ -113,7 +114,7 @@ impl SendState {
                 UdpTag::Timezone(tz) => tags.push(Box::new(tz)),
                 UdpTag::DateTime(dt) => tags.push(Box::new(dt)),
                 UdpTag::Joysticks(joy) => tags.push(Box::new(joy)),
-                UdpTag::Countdown(cnt) => tags.push(Box::new(cnt))
+                UdpTag::Countdown(cnt) => tags.push(Box::new(cnt)),
             }
         }
 

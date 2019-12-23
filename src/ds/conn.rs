@@ -4,16 +4,16 @@ use crate::proto::udp::inbound::types::Trace;
 use crate::proto::udp::inbound::UdpResponsePacket;
 use crate::proto::udp::outbound::types::tags::{DateTime as DTTag, *};
 
+use futures_channel::mpsc::unbounded;
 use futures_channel::mpsc::UnboundedReceiver;
-use futures_util::stream::StreamExt;
 use futures_util::sink::SinkExt;
+use futures_util::stream::StreamExt;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::net::{TcpStream, UdpSocket};
 use tokio::time;
 use tokio_util::codec::Decoder;
 use tokio_util::udp::UdpFramed;
-use futures_channel::mpsc::unbounded;
 
 use chrono::prelude::*;
 
@@ -21,10 +21,10 @@ use crate::proto::tcp::DsTcpCodec;
 use crate::proto::udp::DsUdpCodec;
 use crate::Result;
 
-use futures_util::future::Either;
-use futures_util::stream::select;
 use crate::ds::state::DsState;
 use crate::proto::tcp::outbound::TcpTag;
+use futures_util::future::Either;
+use futures_util::stream::select;
 
 pub(crate) async fn udp_conn(
     state: Arc<DsState>,
@@ -42,8 +42,13 @@ pub(crate) async fn udp_conn(
     let send_state = state.clone();
     let target = target_ip.clone();
     tokio::spawn(async move {
-        let mut udp_tx = UdpSocket::bind("0.0.0.0:0").await.expect("Failed to bind tx socket");
-        udp_tx.connect(&format!("{}:1110", target)).await.expect("Failed to connect to target");
+        let mut udp_tx = UdpSocket::bind("0.0.0.0:0")
+            .await
+            .expect("Failed to bind tx socket");
+        udp_tx
+            .connect(&format!("{}:1110", target))
+            .await
+            .expect("Failed to connect to target");
 
         let interval = time::interval(Duration::from_millis(20));
 
@@ -55,9 +60,7 @@ pub(crate) async fn udp_conn(
                 Either::Left(_) => {
                     let mut state = send_state.send().lock().await;
                     let v = state.control().encode();
-                    udp_tx
-                        .send(&v[..])
-                        .await.expect("Failed to send packet");
+                    udp_tx.send(&v[..]).await.expect("Failed to send packet");
                     state.increment_seqnum();
                 }
                 Either::Right(sig) => match sig {
@@ -66,51 +69,51 @@ pub(crate) async fn udp_conn(
                         state.reset_seqnum();
                         state.disable();
                         send_state.recv().lock().await.set_trace(Trace::empty());
-                        udp_tx.connect(&format!("{}:1110", &ip)).await.expect("Failed to connect to new target");
+                        udp_tx
+                            .connect(&format!("{}:1110", &ip))
+                            .await
+                            .expect("Failed to connect to new target");
                     }
                     _ => {}
-                }
+                },
             }
         }
     });
-
 
     let mut stream = select(udp_rx.map(Either::Left), rx.map(Either::Right));
 
     while let Some(item) = stream.next().await {
         match item {
-            Either::Left(packet) => {
-                match packet {
-                    Ok(packet) => {
-                        let (packet, _): (UdpResponsePacket, _) = packet;
-                        let mut _state = state.recv().lock().await;
+            Either::Left(packet) => match packet {
+                Ok(packet) => {
+                    let (packet, _): (UdpResponsePacket, _) = packet;
+                    let mut _state = state.recv().lock().await;
 
-                        if packet.need_date {
-                            let local = Utc::now();
-                            let micros = local.naive_utc().timestamp_subsec_micros();
-                            let second = local.time().second() as u8;
-                            let minute = local.time().minute() as u8;
-                            let hour = local.time().hour() as u8;
-                            let day = local.date().day() as u8;
-                            let month = local.date().month0() as u8;
-                            let year = (local.date().year() - 1900) as u8;
-                            let tag = DTTag::new(micros, second, minute, hour, day, month, year);
-                            state.send().lock().await.queue_udp(UdpTag::DateTime(tag));
-                        }
-
-                        if !tcp_connected {
-                            let (tx, rx) = unbounded::<Signal>();
-                            tcp_tx = Some(tx);
-                            tokio::spawn(tcp_conn(state.clone(), target_ip.clone(), rx));
-                            tcp_connected = true;
-                        }
-
-                        _state.set_trace(packet.trace);
-                        _state.set_battery_voltage(packet.battery);
+                    if packet.need_date {
+                        let local = Utc::now();
+                        let micros = local.naive_utc().timestamp_subsec_micros();
+                        let second = local.time().second() as u8;
+                        let minute = local.time().minute() as u8;
+                        let hour = local.time().hour() as u8;
+                        let day = local.date().day() as u8;
+                        let month = local.date().month0() as u8;
+                        let year = (local.date().year() - 1900) as u8;
+                        let tag = DTTag::new(micros, second, minute, hour, day, month, year);
+                        state.send().lock().await.queue_udp(UdpTag::DateTime(tag));
                     }
-                    Err(e) => println!("Error decoding packet: {:?}", e)
+
+                    if !tcp_connected {
+                        let (tx, rx) = unbounded::<Signal>();
+                        tcp_tx = Some(tx);
+                        tokio::spawn(tcp_conn(state.clone(), target_ip.clone(), rx));
+                        tcp_connected = true;
+                    }
+
+                    _state.set_trace(packet.trace);
+                    _state.set_battery_voltage(packet.battery);
                 }
-            }
+                Err(e) => println!("Error decoding packet: {:?}", e),
+            },
             Either::Right(sig) => match sig {
                 Signal::Disconnect => return Ok(()),
                 Signal::NewTarget(ref target) => {
@@ -123,13 +126,17 @@ pub(crate) async fn udp_conn(
 
                     fwd_tx.unbounded_send(sig)?;
                 }
-            }
+            },
         }
     }
     Ok(())
 }
 
-pub(crate) async fn tcp_conn(state: Arc<DsState>, target_ip: String, rx: UnboundedReceiver<Signal>) -> Result<()> {
+pub(crate) async fn tcp_conn(
+    state: Arc<DsState>,
+    target_ip: String,
+    rx: UnboundedReceiver<Signal>,
+) -> Result<()> {
     let conn = TcpStream::connect(&format!("{}:1740", target_ip)).await?;
     let codec = DsTcpCodec.framed(conn);
     let (mut codec_tx, codec_rx) = codec.split();
@@ -155,7 +162,7 @@ pub(crate) async fn tcp_conn(state: Arc<DsState>, target_ip: String, rx: Unbound
                 Either::Right(_) => {
                     state.lock().await.set_tcp_tx(None);
                 }
-            }
+            },
             Either::Right(tag) => {
                 let _ = codec_tx.send(tag).await;
             }
@@ -163,4 +170,3 @@ pub(crate) async fn tcp_conn(state: Arc<DsState>, target_ip: String, rx: Unbound
     }
     Ok(())
 }
-

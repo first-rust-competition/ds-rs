@@ -8,10 +8,10 @@ pub(crate) mod state;
 use self::conn::*;
 use self::state::*;
 
-use std::sync::Arc;
 use futures::executor::block_on;
+use std::sync::Arc;
 
-use futures_channel::mpsc::{UnboundedSender, unbounded};
+use futures_channel::mpsc::{unbounded, UnboundedSender};
 
 use crate::proto::tcp::outbound::{GameData, TcpTag};
 use crate::proto::udp::inbound::types::Trace;
@@ -51,13 +51,14 @@ impl DriverStation {
         thread::spawn(move || {
             use tokio::runtime::Runtime;
             let mut rt = Runtime::new().unwrap();
-            rt.block_on(udp_conn(udp_state, udp_ip, rx)).expect("Error with udp connection");
+            rt.block_on(udp_conn(udp_state, udp_ip, rx))
+                .expect("Error with udp connection");
         });
 
         DriverStation {
             thread_tx: tx,
             state,
-            team_number
+            team_number,
         }
     }
 
@@ -85,7 +86,9 @@ impl DriverStation {
 
     pub fn set_team_number(&mut self, team_number: u32) {
         self.team_number = team_number;
-        self.thread_tx.unbounded_send(Signal::NewTarget(ip_from_team_number(team_number))).unwrap();
+        self.thread_tx
+            .unbounded_send(Signal::NewTarget(ip_from_team_number(team_number)))
+            .unwrap();
     }
 
     pub fn team_number(&self) -> u32 {
@@ -98,12 +101,9 @@ impl DriverStation {
             bail!("Message should be 3 characters long");
         }
 
-        let _ = block_on(self.state
-            .tcp()
-            .lock())
-            .queue_tcp(TcpTag::GameData(GameData {
-                gsm: message.to_string(),
-            }));
+        let _ = block_on(self.state.tcp().lock()).queue_tcp(TcpTag::GameData(GameData {
+            gsm: message.to_string(),
+        }));
         Ok(())
     }
 
