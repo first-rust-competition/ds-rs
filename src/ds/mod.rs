@@ -31,6 +31,10 @@ pub struct DriverStation {
 }
 
 impl DriverStation {
+    /// Creates a new driver station with the given team number and alliance
+    ///
+    /// This driver station will attempt to connect to a roboRIO at 10.TE.AM.2,
+    /// if the roboRIO is at a different ip, use [new] and specify the ip directly.
     pub fn new_team(team_number: u32, alliance: Alliance) -> DriverStation {
         Self::new(&ip_from_team_number(team_number), alliance, team_number)
     }
@@ -70,6 +74,9 @@ impl DriverStation {
         block_on(self.state.send().lock()).set_joystick_supplier(supplier);
     }
 
+    /// Provides a closure that will be called when TCP packets are received from the roboRIO
+    ///
+    /// Example usage: Logging all stdout messages from robot code.
     pub fn set_tcp_consumer(&mut self, consumer: impl FnMut(TcpPacket) + Send + Sync + 'static) {
         block_on(self.state.tcp().lock()).set_tcp_consumer(consumer);
     }
@@ -84,6 +91,8 @@ impl DriverStation {
         block_on(self.state.send().lock()).set_mode(mode);
     }
 
+    /// Changes the team number of this driver station, as well as the ip the driver station will attempt to connect to.
+    /// The ip of the new roboRIO target is 10.TE.AM.2
     pub fn set_team_number(&mut self, team_number: u32) {
         self.team_number = team_number;
         self.thread_tx

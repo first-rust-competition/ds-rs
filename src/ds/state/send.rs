@@ -5,14 +5,23 @@ use crate::proto::udp::outbound::*;
 use crate::{Alliance, JoystickValue, Mode};
 use std::f32;
 
+/// State containing all the data relevant to constructing a UDP control packet to the roboRIO
 pub struct SendState {
+    /// The mode the robot should be enabled in
     mode: Mode,
+    /// The current sequence number
     udp_seqnum: u16,
+    /// Whether the robot is enabled
     enabled: bool,
+    /// Whether the robot is estopped
     estopped: bool,
+    /// The current alliance of the robot
     pub alliance: Alliance,
+    /// Any UDP tags that are to be sent with the next UDP control packet
     pending_udp: Vec<UdpTag>,
+    /// An optional source for joystick values that will be encoded and sent with the packet
     joystick_provider: Option<Box<JoystickSupplier>>,
+    /// Pending reboot or code restart requests
     pending_request: Option<Request>,
 }
 
@@ -53,6 +62,10 @@ impl SendState {
         self.alliance = alliance;
     }
 
+    /// Constructs a control packet from the current state
+    ///
+    /// if [self.joystick_provider] is Some, it will be used to construct the joysticks tag
+    /// if [self.request] is Some, its value will be consumed and sent to the roboRIO
     pub fn control(&mut self) -> UdpControlPacket {
         if let Some(ref supplier) = &self.joystick_provider {
             let joysticks = supplier();

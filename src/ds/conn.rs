@@ -26,6 +26,9 @@ use crate::proto::tcp::outbound::TcpTag;
 use futures_util::future::Either;
 use futures_util::stream::select;
 
+/// The root task of the tokio runtime.
+///
+/// This task connects to the receiving UDP port, and spawns tasks for UDP sending, and for TCP communications once the connection to the RIO has been established.
 pub(crate) async fn udp_conn(
     state: Arc<DsState>,
     mut target_ip: String,
@@ -132,6 +135,10 @@ pub(crate) async fn udp_conn(
     Ok(())
 }
 
+/// tokio task for all TCP communications
+///
+/// This task will decode incoming TCP packets, and call the tcp consumer defined in `state` if it exists.
+/// It will also accept packets to send from a channel set in `state`, for tasks such as defining game data.
 pub(crate) async fn tcp_conn(
     state: Arc<DsState>,
     target_ip: String,

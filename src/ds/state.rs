@@ -14,9 +14,13 @@ mod send;
 type JoystickSupplier = dyn Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static;
 type TcpConsumer = dyn FnMut(TcpPacket) + Send + Sync + 'static;
 
+/// The core state of the driver station, containing locks over all relevant substates
 pub struct DsState {
+    /// The state associated with the sending UDP socket
     send_state: Mutex<SendState>,
+    /// The state associated with the receiving UDP socket
     recv_state: Mutex<RecvState>,
+    /// The state associated with the TCP socket
     tcp_state: Mutex<TcpState>,
 }
 
@@ -55,6 +59,7 @@ pub enum Mode {
 }
 
 impl Mode {
+    /// Decodes the mode of the robot from the given status byte
     pub fn from_status(status: Status) -> Option<Mode> {
         if status & Status::TELEOP == Status::TELEOP {
             Some(Mode::Teleoperated)
@@ -67,6 +72,7 @@ impl Mode {
         }
     }
 
+    /// Converts this `Mode` into a `Control` byte that can be modified for encoding the control packet.
     fn to_control(&self) -> Control {
         match *self {
             Mode::Teleoperated => Control::TELEOP,

@@ -8,6 +8,7 @@ use tokio_util::codec::{Decoder, Encoder};
 pub mod inbound;
 pub mod outbound;
 
+/// The tokio codec for TCP traffic to and from the roboRIO
 pub struct DsTcpCodec;
 
 impl Encoder for DsTcpCodec {

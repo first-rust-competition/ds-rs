@@ -6,13 +6,19 @@ use crate::TcpPacket;
 use failure::format_err;
 use futures_channel::mpsc::UnboundedSender;
 
+/// All the data received from roboRIO UDP status packets that isn't already encoded in the send state
 pub struct RecvState {
+    /// The current battery voltage
     battery_voltage: f32,
+    /// A bitflags struct that can be used to query the state of various aspects of the RIO
     trace: Trace,
 }
 
+/// All the state associated with TCP communication with the RIO
 pub struct TcpState {
+    /// An optional callback that should be notified upon incoming packets being decoded
     pub tcp_consumer: Option<Box<TcpConsumer>>,
+    /// A channel of packets that should be sent to the roboRIO
     pending_tcp: Option<UnboundedSender<TcpTag>>,
 }
 
@@ -25,6 +31,7 @@ impl TcpState {
     }
 
     pub fn queue_tcp(&self, tag: TcpTag) -> Result<()> {
+        // pending_tcp is set by the tcp_conn function when it connects.
         self.pending_tcp
             .clone()
             .ok_or(format_err!("TCP task not spawned."))

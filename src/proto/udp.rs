@@ -6,6 +6,7 @@ use tokio_util::codec::{Decoder, Encoder};
 pub mod inbound;
 pub mod outbound;
 
+/// The tokio codec for UDP traffic to and from the roboRIO
 pub struct DsUdpCodec;
 
 impl Decoder for DsUdpCodec {
@@ -20,6 +21,10 @@ impl Decoder for DsUdpCodec {
                 src.advance(len);
                 return Ok(Some(packet));
             }
+            // In other Decoder implementations, the error is checked and if it was due
+            // to a lack of data, Ok(None) is returned.
+            // This implementation does it differently due to a bug in UDPFramed assuming there's nothing left
+            // to decode if None is ever returned.
             Err(e) => Err(e),
         }
     }
