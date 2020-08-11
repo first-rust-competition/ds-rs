@@ -6,3 +6,5 @@
 
 For a project written using this library, see [consoleds](https://github.com/Redrield/elm-ds)
 
+This library requires building on a nightly compiler.
+
