@@ -112,6 +112,13 @@ pub(crate) async fn udp_conn(
                         tcp_connected = true;
                     }
 
+                    if packet.status.emergency_stopped() {
+                        let mut send = state.send().lock().await;
+                        if !send.estopped() {
+                            send.estop();
+                        }
+                    }
+
                     _state.set_trace(packet.trace);
                     _state.set_battery_voltage(packet.battery);
                 }
