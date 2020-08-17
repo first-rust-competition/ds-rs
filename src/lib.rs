@@ -20,7 +20,7 @@ mod ext;
 mod proto;
 pub(crate) mod util;
 
-pub use self::ds::state::Mode;
+pub use self::ds::state::{Mode, DsMode};
 pub use self::ds::{DriverStation, JoystickValue};
 pub use self::proto::tcp::inbound::*;
 pub use self::proto::tcp::outbound::*;
