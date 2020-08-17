@@ -93,6 +93,10 @@ impl DriverStation {
         block_on(self.state.send().lock()).set_mode(mode);
     }
 
+    pub fn ds_mode(&self) -> DsMode {
+        *block_on(self.state.send().lock()).ds_mode()
+    }
+
     /// Changes the team number of this driver station, as well as the ip the driver station will attempt to connect to.
     /// The ip of the new roboRIO target is 10.TE.AM.2
     pub fn set_team_number(&mut self, team_number: u32) {

@@ -1,6 +1,5 @@
 use super::Signal;
 
-use crate::proto::udp::inbound::types::Trace;
 use crate::proto::udp::inbound::UdpResponsePacket;
 use crate::proto::udp::outbound::types::tags::{DateTime as DTTag, *};
 
@@ -198,7 +197,7 @@ pub(crate) async fn udp_conn(
                         state.send().lock().await.set_ds_mode(mode);
                         if mode == DsMode::Normal {
                             println!("Exiting simulation mode");
-                            fwd_tx.unbounded_send(Signal::NewTarget(target_ip.clone()));
+                            fwd_tx.unbounded_send(Signal::NewTarget(target_ip.clone()))?;
                         }
                         fwd_tx.unbounded_send(sig)?;
                     }
@@ -277,5 +276,4 @@ pub(crate) async fn sim_conn(tx: UnboundedSender<Signal>) -> Result<()> {
             }
         }
     }
-    Ok(())
 }

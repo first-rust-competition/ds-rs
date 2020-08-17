@@ -1,5 +1,5 @@
 use std::time::Duration;
-use rand::{Rng, thread_rng, RngCore};
+use rand::{Rng, thread_rng};
 use std::future::Future;
 use tokio::time;
 
