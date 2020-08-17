@@ -1,4 +1,4 @@
-use crate::ds::state::JoystickSupplier;
+use crate::ds::state::{JoystickSupplier, DsMode};
 use crate::proto::udp::outbound::types::tags::*;
 use crate::proto::udp::outbound::types::{Control, Request};
 use crate::proto::udp::outbound::*;
@@ -23,6 +23,7 @@ pub struct SendState {
     joystick_provider: Option<Box<JoystickSupplier>>,
     /// Pending reboot or code restart requests
     pending_request: Option<Request>,
+    dsmode: DsMode,
 }
 
 impl SendState {
@@ -36,6 +37,7 @@ impl SendState {
             pending_udp: Vec::new(),
             joystick_provider: None,
             pending_request: None,
+            dsmode: DsMode::Normal,
         }
     }
 
@@ -148,6 +150,14 @@ impl SendState {
 
     pub fn set_mode(&mut self, mode: Mode) {
         self.mode = mode;
+    }
+
+    pub fn ds_mode(&self) -> &DsMode {
+        &self.dsmode
+    }
+
+    pub fn set_ds_mode(&mut self, mode: DsMode) {
+        self.dsmode = mode;
     }
 
     pub fn increment_seqnum(&mut self) {

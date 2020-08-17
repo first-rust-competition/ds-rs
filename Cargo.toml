@@ -5,7 +5,7 @@ license = "MIT/Apache-2.0"
 repository = "https://gitlab.com/Redrield/ds-rs"
 documentation = "https://docs.rs/ds"
 readme = "README.md"
-version = "1.1.2"
+version = "1.2.0"
 keywords = ["frc", "first", "robotics"]
 categories = ["network-programming"]
 authors = ["Kaitlyn Kenwell <redrield@gmail.com>"]
@@ -24,3 +24,4 @@ bytes = "0.5.3"
 futures-channel = "0.3.1"
 futures-util = { version = "0.3.1", features = ["sink", "async-await"] }
 futures = "0.3.1"
+rand = "0.7.3"

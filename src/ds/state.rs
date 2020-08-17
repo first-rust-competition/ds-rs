@@ -14,6 +14,16 @@ mod send;
 type JoystickSupplier = dyn Fn() -> Vec<Vec<JoystickValue>> + Send + Sync + 'static;
 type TcpConsumer = dyn FnMut(TcpPacket) + Send + Sync + 'static;
 
+/// The operating mode of the driver station
+///
+/// Normal operating mode connects to the IP specified by a team number
+/// Simulation mode connects to localhost, and is activated by a connection to ::1135
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum DsMode {
+    Normal,
+    Simulation
+}
+
 /// The core state of the driver station, containing locks over all relevant substates
 pub struct DsState {
     /// The state associated with the sending UDP socket

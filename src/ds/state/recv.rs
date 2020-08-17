@@ -14,6 +14,13 @@ pub struct RecvState {
     trace: Trace,
 }
 
+impl RecvState {
+    pub fn reset(&mut self) {
+        self.battery_voltage = 0f32;
+        self.trace = Trace::empty();
+    }
+}
+
 /// All the state associated with TCP communication with the RIO
 pub struct TcpState {
     /// An optional callback that should be notified upon incoming packets being decoded
