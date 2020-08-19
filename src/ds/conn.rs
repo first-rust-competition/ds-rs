@@ -233,7 +233,6 @@ pub(crate) async fn tcp_conn(
             Either::Left(left) => match left {
                 Either::Left(packet) => {
                     if let Ok(packet) = packet {
-                        println!("Received TCP packet {:?}", packet);
                         let mut state = state.lock().await;
                         if let Some(ref mut consumer) = state.tcp_consumer {
                             consumer(packet);
