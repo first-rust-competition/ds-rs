@@ -3,8 +3,8 @@ use super::Signal;
 use crate::proto::udp::inbound::UdpResponsePacket;
 use crate::proto::udp::outbound::types::tags::{DateTime as DTTag, *};
 
-use futures_channel::mpsc::{unbounded, UnboundedSender};
 use futures_channel::mpsc::UnboundedReceiver;
+use futures_channel::mpsc::{unbounded, UnboundedSender};
 use futures_util::sink::SinkExt;
 use futures_util::stream::StreamExt;
 use std::sync::Arc;
@@ -20,7 +20,7 @@ use crate::proto::tcp::DsTcpCodec;
 use crate::proto::udp::DsUdpCodec;
 use crate::Result;
 
-use crate::ds::state::{DsState, DsMode};
+use crate::ds::state::{DsMode, DsState};
 use crate::proto::tcp::outbound::TcpTag;
 use futures_util::future::Either;
 use futures_util::stream::select;
@@ -166,7 +166,7 @@ pub(crate) async fn udp_conn(
                         _state.set_battery_voltage(packet.battery);
                     }
                     Err(e) => println!("Error decoding packet: {:?}", e),
-                }
+                },
                 Err(_) => {
                     if connected {
                         println!("RIO disconnected");
@@ -251,7 +251,6 @@ pub(crate) async fn tcp_conn(
     Ok(())
 }
 
-
 pub(crate) async fn sim_conn(tx: UnboundedSender<Signal>) -> Result<()> {
     use tokio::time::timeout;
     const SOCK_TIMEOUT: Duration = Duration::from_millis(250);
@@ -264,7 +263,8 @@ pub(crate) async fn sim_conn(tx: UnboundedSender<Signal>) -> Result<()> {
             Ok(_) => {
                 if opmode != DsMode::Simulation {
                     opmode = DsMode::Simulation;
-                    tx.unbounded_send(Signal::NewMode(DsMode::Simulation)).unwrap();
+                    tx.unbounded_send(Signal::NewMode(DsMode::Simulation))
+                        .unwrap();
                 }
             }
             Err(_) => {

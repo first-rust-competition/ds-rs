@@ -1,13 +1,13 @@
-use std::time::Duration;
-use rand::{Rng, thread_rng};
+use rand::{thread_rng, Rng};
 use std::future::Future;
+use std::time::Duration;
 use tokio::time;
 
 pub struct ExponentialBackoff {
     attempt: u8,
     max_timeout: Duration,
     use_max: bool,
-    timeout: Option<Duration>
+    timeout: Option<Duration>,
 }
 
 impl ExponentialBackoff {
@@ -16,10 +16,13 @@ impl ExponentialBackoff {
             attempt: 0,
             max_timeout,
             use_max: false,
-            timeout: None
+            timeout: None,
         }
     }
-    pub async fn run<O, E>(&mut self, fut: impl Future<Output=Result<O, E>>) -> Result<O, (E, bool)> {
+    pub async fn run<O, E>(
+        &mut self,
+        fut: impl Future<Output = Result<O, E>>,
+    ) -> Result<O, (E, bool)> {
         if let Some(timeout) = self.timeout {
             println!("Backoff: waiting {:?}", timeout);
             time::delay_for(timeout).await;
@@ -28,7 +31,7 @@ impl ExponentialBackoff {
             Ok(out) => {
                 self.reset();
                 Ok(out)
-            },
+            }
             Err(e) => {
                 let disconnected = self.attempt == 0;
                 self.calculate_wait();

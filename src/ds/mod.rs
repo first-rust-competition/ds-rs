@@ -108,9 +108,13 @@ impl DriverStation {
 
     pub fn set_use_usb(&mut self, use_usb: bool) {
         if use_usb {
-            self.thread_tx.unbounded_send(Signal::NewTarget("172.22.11.2".to_string())).unwrap();
+            self.thread_tx
+                .unbounded_send(Signal::NewTarget("172.22.11.2".to_string()))
+                .unwrap();
         } else {
-            self.thread_tx.unbounded_send(Signal::NewTarget(ip_from_team_number(self.team_number))).unwrap();
+            self.thread_tx
+                .unbounded_send(Signal::NewTarget(ip_from_team_number(self.team_number)))
+                .unwrap();
         }
     }
 

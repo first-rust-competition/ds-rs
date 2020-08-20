@@ -1,4 +1,4 @@
-use crate::ds::state::{JoystickSupplier, DsMode};
+use crate::ds::state::{DsMode, JoystickSupplier};
 use crate::proto::udp::outbound::types::tags::*;
 use crate::proto::udp::outbound::types::{Control, Request};
 use crate::proto::udp::outbound::*;

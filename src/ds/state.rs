@@ -21,7 +21,7 @@ type TcpConsumer = dyn FnMut(TcpPacket) + Send + Sync + 'static;
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum DsMode {
     Normal,
-    Simulation
+    Simulation,
 }
 
 /// The core state of the driver station, containing locks over all relevant substates
