@@ -41,7 +41,7 @@ impl TcpState {
         // pending_tcp is set by the tcp_conn function when it connects.
         self.pending_tcp
             .clone()
-            .ok_or(format_err!("TCP task not spawned."))
+            .ok_or_else(|| format_err!("TCP task not spawned."))
             .and_then(move |tx| tx.unbounded_send(tag).map_err(|e| e.into()))
             .map(|_| ())
     }

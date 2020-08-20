@@ -19,7 +19,7 @@ impl Decoder for DsUdpCodec {
         match UdpResponsePacket::decode(&mut buf) {
             Ok((packet, len)) => {
                 src.advance(len);
-                return Ok(Some(packet));
+                Ok(Some(packet))
             }
             // In other Decoder implementations, the error is checked and if it was due
             // to a lack of data, Ok(None) is returned.

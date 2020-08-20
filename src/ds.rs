@@ -161,7 +161,7 @@ impl DriverStation {
 
     /// Returns the last received Trace from the robot
     pub fn trace(&self) -> Trace {
-        block_on(self.state.recv().lock()).trace().clone()
+        *block_on(self.state.recv().lock()).trace()
     }
 
     /// Returns the last received battery voltage from the robot

@@ -36,7 +36,7 @@ impl ExponentialBackoff {
                 let disconnected = self.attempt == 0;
                 self.calculate_wait();
                 self.attempt += 1;
-                return Err((e, disconnected));
+                Err((e, disconnected))
             }
         }
     }

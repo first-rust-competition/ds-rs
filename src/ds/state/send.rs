@@ -73,12 +73,12 @@ impl SendState {
             let joysticks = supplier();
 
             // Joystick tags come one after another, iterate over the outer Vec and queue with each loop
-            for i in 0..joysticks.len() {
+            for joystick in &joysticks {
                 let mut axes = vec![0; 6];
                 let mut buttons = vec![false; 10];
                 let mut povs = vec![-1i16];
 
-                for value in &joysticks[i] {
+                for value in joystick {
                     // If statements bound check to stop it from crashing
                     match value {
                         JoystickValue::Button { id, pressed } => {
