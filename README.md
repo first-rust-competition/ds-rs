@@ -4,7 +4,9 @@
 
 `ds` provides the means to create an FRC driver station, allowing you to enable, and control robots without the use of the official, windows-only driver station. 
 
-For a project written using this library, see [consoleds](https://github.com/Redrield/elm-ds)
+For a project written using this library, see [Conductor](https://github.com/Redrield/Conductor), a cross-platform driver station written with this library.
+
+The `libDS` subdirectory is a crate exposing a C API around `ds-rs`. 
 
 This library requires building on a nightly compiler.
 

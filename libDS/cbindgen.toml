@@ -1,0 +1,7 @@
+language = "C"
+
+pragma_once = true
+
+[parse]
+parse_deps = true
+include = ["ds"]
