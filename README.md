@@ -8,5 +8,9 @@ For a project written using this library, see [Conductor](https://github.com/Red
 
 The `libDS` subdirectory is a crate exposing a C API around `ds-rs`. 
 
-This library requires building on a nightly compiler.
+
+
+## Note about the FMS
+
+This crate is intended to create driver stations usable for quick iterations in a shop setting, for users who participate in FRC with a non-Windows computer. Due to this, FMS support is purposely omitted from the protocol stack. The NI Driver Station is the only DS that should be used in a competition setting, and any PRs attempting to add support for the Field Management System to this library will be closed immediately.
 
