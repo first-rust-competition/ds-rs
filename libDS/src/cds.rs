@@ -1,4 +1,4 @@
-use ds::{Alliance, DriverStation, Trace, TcpPacket};
+use ds::{Alliance, DriverStation, TcpPacket};
 use std::ptr;
 use libc::c_char;
 use std::ffi::{CStr, CString};

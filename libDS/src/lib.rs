@@ -53,13 +53,6 @@ impl Mode {
 }
 
 impl DsMode {
-    pub(crate) fn to_ds(self) -> ds::DsMode {
-        match self {
-            DsMode::Normal => ds::DsMode::Normal,
-            DsMode::Simulation => ds::DsMode::Simulation,
-        }
-    }
-
     pub(crate) fn from_ds(ds: ds::DsMode) -> DsMode {
         match ds {
             ds::DsMode::Normal => DsMode::Normal,
