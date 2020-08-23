@@ -294,6 +294,11 @@ pub unsafe extern "C" fn DS_DriverStation_battery_voltage(ds: *const DriverStati
 /// Register a callback to be notified when the driver station returns TCP packets containing riolog data
 ///
 /// This function does nothing if the given ds pointer is NULL
+///
+/// WARNING: The pointer passed to the callback is INVALIDATED after the callback returns
+/// If keeping the string is desirable, it should be copied out of the pointer provided.
+/// Keeping the raw pointer after the callback returns will result in a use-after-free bug when it
+/// is next accessed.
 #[no_mangle]
 pub unsafe extern "C" fn DS_DriverStation_set_tcp_consumer(ds: *mut DriverStation, callback: extern "C" fn(StdoutMessage)) {
     if ds.is_null() {
