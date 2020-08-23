@@ -88,6 +88,9 @@ pub(crate) async fn udp_conn(
                         state.reset_seqnum();
                         state.disable();
                         send_state.recv().lock().await.reset();
+                        udp_tx = UdpSocket::bind("0.0.0.0:0")
+                            .await
+                            .expect("Failed to bind tx socket");
                         udp_tx
                             .connect(&format!("{}:1110", &ip))
                             .await
