@@ -12,3 +12,4 @@ crate-type = ["cdylib", "staticlib"]
 [dependencies]
 ds = { path = "../" }
 libc = "0.2.76"
+lazy_static = "1.4.0"

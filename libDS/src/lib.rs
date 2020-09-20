@@ -3,6 +3,7 @@ use std::marker::PhantomData;
 
 mod cds;
 mod trace;
+mod joysticks;
 
 #[repr(C)]
 pub struct StdoutMessage<'a> {

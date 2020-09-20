@@ -6,6 +6,16 @@
 #include <stdlib.h>
 
 /**
+ * The error value returned by joystick functions if the specified port is out of bounds.
+ */
+#define EOUTOFBOUND 1
+
+/**
+ * The error value returned by joystick functions if the joysticks Mutex was poisoned
+ */
+#define EPOISONLOCK 2
+
+/**
  * The mask for Autonomous mode being selected
  */
 #define TRACE_AUTONOMOUS 4
@@ -247,3 +257,70 @@ void DS_DriverStation_set_use_usb(DriverStation *ds,
  * This function does nothing if the given pointer is NULL
  */
 uint8_t DS_DriverStation_trace(const DriverStation *ds);
+
+/**
+ * Attaches a new joystick, creating the new vector for it.
+ * After calling this function, `port` can be used in the set_* functions to update values from the joystick
+ *
+ * Returns:
+ * `EOUTOFBOUND` if the specified port is greater than 5 (RIO only supports 6 joysticks)
+ * `EPOISONLOCK` if the Mutex that stores the joysticks data was poisoned.
+ * 0 if the operation was a success.
+ */
+uint8_t DS_Joystick_attach(uintptr_t port);
+
+/**
+ * Detaches a joystick, removing all its entries from the DS
+ * After calling this function, `port` should **not** be used with set_* functions
+ * If there are joysticks bound to ports greater than that specified, the vector may not be deleted,
+ * however its contents will be cleared.
+ *
+ * Returns:
+ * `EOUTOFBOUND` if the specified port is greater than 5. (RIO only supports 6 joysticks).
+ * `EPOISONLOCK` if the Mutex that stores the joystick data was poisoned.
+ * 0 if the operation was a success
+ */
+uint8_t DS_Joystick_detach(uintptr_t port);
+
+/**
+ * Initializes the joystick supplier for the given DriverStation
+ * After this is called, joystick values set with this API will be sent to any connected roboRIOs.
+ *
+ * This function should only be called with a pointer returned from `DS_DriverStation_new_team` or `DS_DriverStation_new_ip`.
+ *
+ * Returns:
+ * -1 if the given pointer is NULL
+ * 0 if the operation was a success.
+ */
+int8_t DS_Joystick_init(DriverStation *ds);
+
+/**
+ * Updates the value of an axis associated with the joystick on port `port`
+ * This function should only be used if `port` has been registered with `DS_Joystick_attach`
+ *
+ * Returns:
+ * `EOUTOFBOUND` if there is no vector stored at index `port`
+ * `EPOISONLOCK` if the Mutex that stores joystick data was poisoned
+ */
+uint8_t DS_Joystick_set_axis(uintptr_t port, uint8_t axis, float value);
+
+/**
+ * Updates the value of a button associated with the joystick on port `port`.
+ * This function should only be used if `port` has been registered with `DS_Joystick_attach`
+ *
+ * Returns:
+ * `EOUTOFBOUND` if there is no vector stored at index `port`
+ * `EPOISONLOCK` if the Mutex that stores joystick data was poisoned.
+ * 0 if the operation was a success
+ */
+uint8_t DS_Joystick_set_button(uintptr_t port, uint8_t button, bool pressed);
+
+/**
+ * Updates the value of a POV, or d-pad associated with the joystick on port `port`
+ * This function should only be used if `port` has been registered with `DS_Joystick_attach`
+ *
+ * Returns:
+ * `EOUTOFBOUND` if there is no vector stored at index `port`
+ * `EPOISONLOCK` if the Mutex that stores joystick data was poisoned
+ */
+uint8_t DS_Joystick_set_pov(uintptr_t port, uint8_t pov, int16_t value);

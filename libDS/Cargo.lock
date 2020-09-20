@@ -309,6 +309,7 @@ name = "libDS"
 version = "0.1.0"
 dependencies = [
  "ds",
+ "lazy_static",
  "libc",
 ]
 
