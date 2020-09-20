@@ -218,28 +218,28 @@ impl JoystickValue {
         match self {
             JoystickValue::Axis { id, .. } => id,
             JoystickValue::Button { id, .. } => id,
-            JoystickValue::POV { id, .. } => id
+            JoystickValue::POV { id, .. } => id,
         }
     }
 
     pub fn is_axis(self) -> bool {
         match self {
             JoystickValue::Axis { .. } => true,
-            _ => false
+            _ => false,
         }
     }
 
     pub fn is_button(self) -> bool {
         match self {
             JoystickValue::Button { .. } => true,
-            _ => false
+            _ => false,
         }
     }
 
     pub fn is_pov(self) -> bool {
         match self {
             JoystickValue::POV { .. } => true,
-            _ => false
+            _ => false,
         }
     }
 }
