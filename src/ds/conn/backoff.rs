@@ -25,7 +25,7 @@ impl ExponentialBackoff {
     ) -> Result<O, (E, bool)> {
         if let Some(timeout) = self.timeout {
             println!("Backoff: waiting {:?}", timeout);
-            time::delay_for(timeout).await;
+            time::sleep(timeout).await;
         }
         match fut.await {
             Ok(out) => {
@@ -53,7 +53,7 @@ impl ExponentialBackoff {
             return;
         }
 
-        let random_delay = Duration::from_millis(thread_rng().gen_range(1, 1000));
+        let random_delay = Duration::from_millis(thread_rng().gen_range(1..1000));
 
         let backoff_seconds = 2u64.pow(self.attempt as u32);
 

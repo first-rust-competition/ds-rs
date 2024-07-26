@@ -1,6 +1,6 @@
 [package]
 name = "libDS"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Redrield <redrield@gmail.com>"]
 edition = "2018"
 
@@ -11,5 +11,5 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 ds = { path = "../" }
-libc = "0.2.76"
-lazy_static = "1.4.0"
+libc = "0.2.155"
+lazy_static = "1.5.0"

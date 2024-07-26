@@ -55,7 +55,7 @@ impl DriverStation {
         let sim_tx = tx.clone();
         thread::spawn(move || {
             use tokio::runtime::Runtime;
-            let mut rt = Runtime::new().unwrap();
+            let rt = Runtime::new().unwrap();
             rt.spawn(sim_conn(sim_tx));
             rt.block_on(udp_conn(udp_state, udp_ip, rx))
                 .expect("Error with udp connection");
